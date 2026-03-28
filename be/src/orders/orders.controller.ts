@@ -17,12 +17,12 @@ export class OrdersController {
     return this.ordersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  @Get('orders/my')
+  findMyOrders(@Param('userId') userId: string) {
+    return this.ordersService.findMyOrders(+userId);
   }
 
-  @Patch(':id')
+  @Patch(':id/status')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(+id, updateOrderDto);
   }

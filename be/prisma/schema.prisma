@@ -21,6 +21,13 @@ enum PaymentMethod {
   CASH
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+}
+
 model User{
   id        Int       @id @default(autoincrement())
   email     String    @unique
@@ -88,7 +95,8 @@ model Order {
   
   customerName    String
   customerPhone   String
-  shippingAddress String   
+  shippingAddress String  
+  status          OrderStatus @default(PENDING) 
   
   userId          Int
   user            User        @relation(fields: [userId], references: [id])

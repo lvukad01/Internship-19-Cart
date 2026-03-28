@@ -28,7 +28,7 @@ export class CreateProductDto {
     @Max(1000000, {message: 'Price is too high'})
     price: number;
 
-    @ApiProperty({example: true})
+    @ApiProperty({example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg']})
     @IsArray()
     @IsString({each: true})
     @ArrayMinSize(1, { message: 'Please provide at least one image' })

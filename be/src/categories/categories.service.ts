@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -35,9 +35,18 @@ export class CategoriesService {
       });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+      include: { _count: { select: { products: true } } }
+    });
+
+    if (category && category._count.products > 0) {
+      throw new BadRequestException('Cannot delete category because it has products linked to it.');
+    }
+
     return this.prisma.category.delete({
-      where: {id},
+      where: { id },
     });
   }
 }

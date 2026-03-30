@@ -30,6 +30,8 @@ export class AuthService {
                 password: hashedPassword,
                 role: Role.USER,
                 name: data.name,
+                phone: data.phone,   
+                address: data.address,
             },
         })
     }

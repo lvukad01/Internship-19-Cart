@@ -56,8 +56,4 @@ export class CreateOrderDto {
         price: number;
     }[];
 
-    @ApiProperty({ example: 1, description: 'ID of the user placing the order' })
-    @IsNumber()
-    userId: number;
-
 }

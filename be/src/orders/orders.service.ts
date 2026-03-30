@@ -1,24 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { OrderStatus } from '@prisma/client';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
-import { Order } from './entities/order.entity';
+import { PrismaService } from "src/prisma/prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class OrdersService {
+  constructor(private prisma: PrismaService) {}
 
-    constructor(private prisma: PrismaService) {}
-  
-  create(data: CreateOrderDto) {
-    const { items, userId, ...orderData } = data;
+  async create(dto: CreateOrderDto, userId: number) {
+    const { items, ...orderData } = dto;
     return this.prisma.order.create({
       data: {
         ...orderData,
-        user: {
-          connect: { id: userId },
-        },
+        userId: userId, 
         items: {
           create: items.map(item => ({
             productId: item.productId,
@@ -27,13 +21,17 @@ export class OrdersService {
           })),
         },
       },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
+      include: { items: true },
+    });
+  }
+
+  async update(id: number, data: UpdateOrderDto) {
+    return this.prisma.order.update({
+      where: { id },
+      data: {
+        status: data.status, 
       },
+      include: { items: true }
     });
   }
 
@@ -49,23 +47,7 @@ export class OrdersService {
     });
   }
 
-
-  update(id: number, data: UpdateOrderDto) {
-    return this.prisma.order.update({
-      where: { id },
-      data: {
-        status:OrderStatus.CONFIRMED,
-      },
-       include: { items: {
-        include: {
-          product: true,
-        },
-      },
-    }});
-  }
-
-  findMyOrders(userId: number) {
-
+    findMyOrders(userId: number) {
     return this.prisma.order.findMany({
       where: {
         userId,
@@ -77,12 +59,6 @@ export class OrdersService {
           },
         },
       },
-    });
-  }
-
-  remove(id: number) {
-    return this.prisma.order.delete({
-      where: { id },
     });
   }
 }

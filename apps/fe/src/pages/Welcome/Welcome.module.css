@@ -1,0 +1,46 @@
+.welcomeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.cartIcon {
+  width: 50px;
+  height: 50px;
+  color: white; 
+  animation: rotateCart 3s ease-out forwards;
+}
+
+.cartIcon svg path {
+  fill: white;
+}
+
+.brandNameSvg {
+  height: 30px;
+  width: auto;
+  opacity: 0;
+  animation: fadeInName 1s ease-out 1s forwards;
+}
+
+.brandNameSvg svg path {
+  fill: white;
+}
+
+@keyframes rotateCart {
+  0% { transform: rotate(-180deg) scale(0.5); opacity: 0; }
+  70% { transform: rotate(10deg) scale(1.1); opacity: 1; }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
+@keyframes fadeInName {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}

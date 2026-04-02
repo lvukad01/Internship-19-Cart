@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Welcome from './pages/Welcome/Welcome';
-import {Home} from './pages/Home';
+import Home from './pages/Home/Home';
 import Cart from './pages/Cart';
 import Profile from './pages/Profile';
-import  {BottomNav}  from './components/BottomNav';
+import  {BottomNav}  from './components/BottomNav/BottomNav';
 
 const queryClient = new QueryClient();
 

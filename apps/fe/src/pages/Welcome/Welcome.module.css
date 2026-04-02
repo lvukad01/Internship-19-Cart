@@ -24,7 +24,7 @@
 }
 
 .brandNameSvg {
-  height: 30px;
+  height: 50px;
   width: auto;
   opacity: 0;
   animation: fadeInName 1s ease-out 1s forwards;

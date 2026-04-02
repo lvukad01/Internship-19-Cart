@@ -1,5 +1,15 @@
 import api from './axiosInstance'; 
 
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  description?: string;
+}
+
 export const getProducts = async (params?: any) => {
   const { data } = await api.get('/products', { params });
   return data.data; 

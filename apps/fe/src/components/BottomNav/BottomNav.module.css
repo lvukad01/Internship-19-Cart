@@ -1,0 +1,29 @@
+.navContainer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  border-top: 1px solid #eee;
+  padding: 10px 0;
+  align-items: center;
+  z-index: 1000;
+}
+
+.iconMask {
+    width: '60px';
+    height: '60px';
+    overflow: 'hidden';
+    display: 'flex';
+    justifyContent: 'center';
+    alignItems: 'center';
+}
+
+.iconImg {
+  width: auto;
+  height: auto;
+  object-fit: none;
+  transform-origin: center;
+}

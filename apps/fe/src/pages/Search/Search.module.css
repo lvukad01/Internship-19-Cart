@@ -1,0 +1,50 @@
+.container { padding: 20px; background: #fff; min-height: 100vh; }
+
+.header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+
+.searchBar {
+  flex: 1; position: relative;
+}
+
+.searchBar input {
+  width: 100%; padding: 10px 40px;
+  background: #F3F4F6; border: none; border-radius: 20px;
+}
+
+.searchIcon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+
+/* Tabovi */
+.tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
+.tab, .activeTab {
+  padding: 8px 20px; border-radius: 20px; border: 1px solid #E5E7EB;
+  background: white; white-space: nowrap; cursor: pointer; font-size: 14px;
+}
+.activeTab { background: black; color: white; border-color: black; }
+
+/* Grid */
+.productGrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+
+.productCard { position: relative; display: flex; flex-direction: column; }
+
+.imageContainer {
+  background: #F3F4F6; border-radius: 15px; height: 200px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; padding: 15px;
+}
+
+.imageContainer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.wishlistIcon {
+  position: absolute; top: 10px; right: 10px; color: #1F2937; cursor: pointer;
+}
+
+.details { padding: 10px 0; text-align: center; }
+
+.brandName { font-weight: 700; font-size: 12px; text-transform: uppercase; margin: 0; }
+.productName { font-size: 12px; color: #6B7280; margin: 2px 0; }
+.price { font-weight: 700; font-size: 14px; display: block; margin-top: 4px; }
+
+.colors { display: flex; justify-content: center; gap: 5px; margin-top: 8px; }
+.colorDot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #E5E7EB; }

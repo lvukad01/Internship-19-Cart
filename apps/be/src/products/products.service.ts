@@ -11,11 +11,9 @@ export class ProductsService {
     return this.prisma.product.create({
       data: {
         name: data.name,
-        description: data.description ?? '',
         price: data.price,
         images: data.images,
         colors: data.colors,
-        brand: data.brand ?? '',
         stock: data.stock,
         sizes: data.sizes,
         category: {
@@ -34,7 +32,6 @@ export class ProductsService {
       where: {
         OR: search ? [
           { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
         ] : undefined,
         categoryId: categoryId ? categoryId : undefined,
       },

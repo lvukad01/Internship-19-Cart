@@ -6,7 +6,7 @@ import Cart from './pages/Cart';
 import Profile from './pages/Profile/Profile';
 import Favorites from './pages/Favorites';
 import  {BottomNav}  from './components/BottomNav/BottomNav';
-import Search from './pages/Search';
+import Search from './pages/Search/Search';
 
 const queryClient = new QueryClient();
 

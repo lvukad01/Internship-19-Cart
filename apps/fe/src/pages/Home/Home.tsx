@@ -14,7 +14,7 @@ const Home = () => {
     queryFn: () => getProducts(),
   });
 
-  if (isLoading) return <div className={styles.loader}>Loading categories...</div>;
+  if (isLoading) return <div className={styles.loader}>Loading...</div>;
   if (error) return <div className={styles.error}>Error loading data.</div>;
 
   const products = Array.isArray(productsData) ? productsData : (productsData as any)?.data || [];
@@ -30,7 +30,8 @@ const Home = () => {
     return acc;
   }, {} as Record<string, Product>);
 
-const categoryList: Product[] = Object.values(categoriesMap);
+  const categoryList: Product[] = Object.values(categoriesMap);
+
   const getCardStyle = (index: number) => {
     const stylesList = [
       { size: styles.cardSmall, color: styles.orange },
@@ -63,26 +64,26 @@ const categoryList: Product[] = Object.values(categoriesMap);
             ? (categoryProduct.category as any).name 
             : categoryProduct.category;
 
+          const displayImage = categoryProduct.images && categoryProduct.images.length > 0
+            ? categoryProduct.images[0]
+            : 'https://placehold.co/150';
+
           return (
             <div 
               key={categoryName} 
               className={`${styles.card} ${size} ${color}`}
-              onClick={() => navigate(`/category/${categoryName}`)}
+              onClick={() => navigate(`/search?category=${encodeURIComponent(categoryName)}`)}
             >
-              <img 
-                src={
-                  categoryProduct.imageUrl
-                    ? categoryProduct.imageUrl.startsWith('http') 
-                      ? categoryProduct.imageUrl 
-                      : `http://localhost:3000${categoryProduct.imageUrl}`
-                    : 'https://placehold.co/150'
-                } 
-                alt={categoryName} 
-              />
+              <div className={styles.imageWrapper}>
+                <img 
+                  src={displayImage.startsWith('http') ? displayImage : `http://localhost:3000${displayImage}`}
+                  alt={categoryName} 
+                />
+              </div>
               
               <div className={styles.cardInfo}>
                 <h3 className={styles.categoryTitle}>{categoryName}</h3>
-                <p>Explore the collection</p>
+                <p>Explore collection</p>
               </div>
               <span className={styles.arrow}>&gt;</span>
             </div>

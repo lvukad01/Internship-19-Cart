@@ -17,10 +17,6 @@ export class CreateProductDto {
     @MaxLength(100, { message: 'Name is too long' })
     name: string;
 
-    @ApiProperty({example: 'A comfortable cotton T-shirt', required: false})
-    @IsString()
-    @IsOptional()
-    description?: string;
 
     @ApiProperty({example: 19.99})
     @IsNumber()
@@ -40,10 +36,6 @@ export class CreateProductDto {
     @ArrayMinSize(1, { message: 'Please provide at least one color' })
     colors: string[];
 
-    @ApiProperty({example: 'Ralph Lauren', required: false})
-    @IsString()
-    @IsOptional()
-    brand?: string;
 
     @ApiProperty({example: 14, required:true})
     @IsNumber()

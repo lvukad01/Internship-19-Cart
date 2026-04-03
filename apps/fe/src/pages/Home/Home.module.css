@@ -1,6 +1,6 @@
 .container {
   padding: 20px;
-  padding-bottom: 100px; 
+  padding-bottom: 100px;
   background: white;
 }
 
@@ -18,7 +18,7 @@
   position: absolute;
   top: 0; right: 0;
   width: 10px; height: 10px;
-  background: var(--accent-orange);
+  background: #D18D67;
   border-radius: 50%;
   border: 2px solid white;
 }
@@ -29,12 +29,12 @@
 }
 
 .searchInput {
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
   padding: 12px 12px 12px 45px;
   background: #F3F4F6;
   border: none;
   border-radius: 10px;
-  font-family: 'Alexandria', sans-serif;
 }
 
 .searchIcon {
@@ -57,26 +57,39 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .cardSmall { height: 200px; }
 .cardMedium { height: 260px; }
 .cardLarge { height: 320px; }
 
-.card img {
-  width: 100%;
-  object-fit: contain;
+.imageWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  flex-grow: 1;
+  margin:5px;
+  border-radius: 10px;
+  background-color: rgb(248, 247, 247);
+  overflow: hidden;
+}
+
+.card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .cardInfo {
   padding: 15px;
   color: white;
+  background: linear-gradient(transparent, rgba(0,0,0,0.2));
 }
 
 .cardInfo h3 { font-size: 16px; margin: 0; font-weight: 600; }
-.cardInfo p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+.cardInfo p { font-size: 12px; opacity: 0.9; margin-top: 2px; }
 
 .orange { background: #D18D67; }
 .gray { background: #8E8E8E; }

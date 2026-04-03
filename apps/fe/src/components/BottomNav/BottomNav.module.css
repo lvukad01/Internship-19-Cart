@@ -12,14 +12,7 @@
   z-index: 1000;
 }
 
-.iconMask {
-    width: '60px';
-    height: '60px';
-    overflow: 'hidden';
-    display: 'flex';
-    justifyContent: 'center';
-    alignItems: 'center';
-}
+
 
 .iconImg {
   width: auto;

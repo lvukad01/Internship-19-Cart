@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getProducts, type Product } from '../../api/products';
 import styles from './Home.module.css';
 import cartLogo from '../../assets/logo/cart logo.svg';
-
+import brandLogo from '../../assets/logo/brand name.svg';
 import { useNavigate } from 'react-router-dom';
 import { FiBell, FiSearch } from 'react-icons/fi';
 
@@ -14,8 +14,8 @@ const Home = () => {
     queryFn: () => getProducts(),
   });
 
-  if (isLoading) return <div className={styles.loader}>Učitavam kategorije...</div>;
-  if (error) return <div className={styles.error}>Greška pri učitavanju.</div>;
+  if (isLoading) return <div className={styles.loader}>Loading categories...</div>;
+  if (error) return <div className={styles.error}>Error loading data.</div>;
 
   const products = Array.isArray(productsData) ? productsData : (productsData as any)?.data || [];
 
@@ -44,6 +44,7 @@ const categoryList: Product[] = Object.values(categoriesMap);
     <div className={styles.container}>
       <header className={styles.header}>
         <img src={cartLogo} className={styles.logo} alt="Cart" />
+        <img src={brandLogo} className={styles.brand} alt="Brand" />
         <div className={styles.notification}>
           <FiBell size={24} />
           <span className={styles.badge}></span>
@@ -52,7 +53,7 @@ const categoryList: Product[] = Object.values(categoriesMap);
 
       <div className={styles.searchContainer}>
         <FiSearch className={styles.searchIcon} />
-        <input type="text" placeholder="Pretraži kategorije..." className={styles.searchInput} />
+        <input type="text" placeholder="Search..." className={styles.searchInput} />
       </div>
 
       <div className={styles.grid}>
@@ -81,7 +82,7 @@ const categoryList: Product[] = Object.values(categoriesMap);
               
               <div className={styles.cardInfo}>
                 <h3 className={styles.categoryTitle}>{categoryName}</h3>
-                <p>Istraži kolekciju</p>
+                <p>Explore the collection</p>
               </div>
               <span className={styles.arrow}>&gt;</span>
             </div>

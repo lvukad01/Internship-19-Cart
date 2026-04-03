@@ -12,24 +12,45 @@ export const Profile = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState('');
   const [userData, setUserData] = useState<any>(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (savedToken && savedUser && savedUser !== "undefined") {
+useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (!token) return;
+
       try {
-        setUserData(JSON.parse(savedUser));
-        setIsLoggedIn(true);
-      } catch (e) {
-        localStorage.clear();
+        const response = await fetch('http://localhost:3000/api/users/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const user = result.data || result; 
+          
+          setUserData(user);
+          setIsLoggedIn(true);
+          localStorage.setItem('user', JSON.stringify(user));
+        } else {
+          handleLogout();
+        }
+      } catch (err) {
+        console.error("Greška pri dohvaćanju profila:", err);
       }
-    }
+    };
+
+    fetchUserData();
   }, []);
 
-  const handleSubmit = async (e: React.SyntheticEvent) => {
+const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage(''); 
 
     const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
     const payload = isRegistering ? { email, password, name } : { email, password };
@@ -43,21 +64,27 @@ export const Profile = () => {
 
       const result = await response.json();
 
-      if (response.ok && result.data) {
-        const token = result.data.token;
-        const user = result.data.user;
-
-        if (token && user) {
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(user));
-          
-          setUserData(user);
-          setIsLoggedIn(true);
+      if (response.ok) {
+        if (isRegistering) {
+          setSuccessMessage('Registration successful! Please sign in.');
+          setIsRegistering(false); 
+          setPassword(''); 
         } else {
-          setError("Server did not return user data.");
+          const data = result.data || result; 
+          const token = data.token;
+          const user = data.user;
+
+          if (token && user) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            setUserData(user);
+            setIsLoggedIn(true);
+          } else {
+            setError("Server did not return user data.");
+          }
         }
       } else {
-        setError(result.message || 'Login failed. Please check your credentials.');
+        setError(result.message || 'Action failed. Please check your data.');
       }
     } catch (err) {
       setError('Server is not available.');
@@ -119,7 +146,7 @@ export const Profile = () => {
         <p>{isRegistering ? 'Fill in your details' : 'Please sign in to continue'}</p>
         
         {error && <p className={styles.errorText}>{error}</p>}
-        
+        {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
         <form onSubmit={handleSubmit} className={styles.form}>
           {isRegistering && (
             <div className={styles.inputGroup}>

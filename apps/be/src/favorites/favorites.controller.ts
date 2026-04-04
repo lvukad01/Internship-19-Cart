@@ -24,10 +24,12 @@ export class FavoritesController {
   findAll(@Request() req) {
     return this.favoritesService.findAll(req.user.id);
   }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Remove from favorites' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.favoritesService.remove(id);
+  @Delete('product/:productId')
+  @ApiOperation({ summary: 'Remove product from favorites using productId' })
+  removeByProduct(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Request() req
+  ) {
+    return this.favoritesService.removeByProduct(req.user.id, productId);
   }
 }

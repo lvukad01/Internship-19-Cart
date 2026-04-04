@@ -8,8 +8,8 @@ export class FavoritesService {
   async addToFavorites(userId: number, productId: number) {
     return this.prisma.favorite.create({
       data: {
-        userId: userId, 
-        productId: productId,
+        userId,
+        productId,
       },
     });
   }
@@ -18,14 +18,17 @@ export class FavoritesService {
     return this.prisma.favorite.findMany({
       where: { userId },
       include: {
-        product: true, 
+        product: true,
       },
     });
   }
 
-  async remove(id: number) {
-    return this.prisma.favorite.delete({
-      where: { id },
+  async removeByProduct(userId: number, productId: number) {
+    return this.prisma.favorite.deleteMany({
+      where: {
+        userId: userId,
+        productId: productId,
+      },
     });
   }
 }

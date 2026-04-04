@@ -97,10 +97,10 @@ export const Profile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.clear();
     setIsLoggedIn(false);
     setUserData(null);
+    window.location.reload(); 
   };
 
   if (isLoggedIn && userData) {

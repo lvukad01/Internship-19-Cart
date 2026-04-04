@@ -11,7 +11,7 @@ const Favorites = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (!token) {
+    if (!token || token === 'undefined' || token === null) {
       navigate('/profile');
     }
   }, [token, navigate]);
@@ -19,6 +19,7 @@ const Favorites = () => {
   const { data: favorites = [], isLoading } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
+      if (!token) return [];
       const response = await axios.get('http://localhost:3000/api/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -28,9 +29,9 @@ const Favorites = () => {
     enabled: !!token,
   });
 
-  const toggleFavorite = useMutation({
+  const removeFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
-      await axios.post(`http://localhost:3000/api/favorites/${productId}`, {}, {
+      await axios.delete(`http://localhost:3000/api/favorites/product/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -41,7 +42,7 @@ const Favorites = () => {
 
   const handleRemoveFavorite = (e: React.MouseEvent, productId: number) => {
     e.stopPropagation();
-    toggleFavorite.mutate(productId);
+    removeFavoriteMutation.mutate(productId);
   };
 
   if (isLoading) return <div className={styles.container}>Učitavanje favorita...</div>;

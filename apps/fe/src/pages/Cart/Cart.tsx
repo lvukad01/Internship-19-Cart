@@ -1,50 +1,61 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { FiChevronLeft, FiTrash2, FiMinus, FiPlus } from 'react-icons/fi';
 import styles from './Cart.module.css';
 
-interface CartItem {
-  cartId: number;
-  productId: number;
-  name: string;
-  price: number;
-  image: string;
-  size: string;
-  quantity: number;
-}
-
 const Cart = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const token = localStorage.getItem('token');
+
+  const { data: user, isLoading: userLoading } = useQuery({
+    queryKey: ['user-me'],
+    queryFn: async () => {
+      const res = await axios.get('http://localhost:3000/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.data;
+    },
+    enabled: !!token
+  });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token || token === 'undefined' || token === null) {
+    if (!token) {
       navigate('/profile');
       return;
     }
 
-    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCartItems(savedCart);
-  }, [navigate]);
+    if (user) {
+      const cartKey = `cart_${user.id}`;
+      const savedCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+      setCartItems(savedCart);
+    }
+  }, [user, token, navigate]);
 
   const updateQuantity = (cartId: number, delta: number) => {
+    if (!user) return;
+    const cartKey = `cart_${user.id}`;
     const updated = cartItems.map(item => {
       if (item.cartId === cartId) {
-        const newQty = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQty };
+        return { ...item, quantity: Math.max(1, item.quantity + delta) };
       }
       return item;
     });
     setCartItems(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
+    localStorage.setItem(cartKey, JSON.stringify(updated));
   };
 
   const removeItem = (cartId: number) => {
+    if (!user) return;
+    const cartKey = `cart_${user.id}`;
     const filtered = cartItems.filter(item => item.cartId !== cartId);
     setCartItems(filtered);
-    localStorage.setItem('cart', JSON.stringify(filtered));
+    localStorage.setItem(cartKey, JSON.stringify(filtered));
   };
+
+  if (userLoading) return <div>Učitavanje...</div>;
 
   const subTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const delivery = cartItems.length > 0 ? 5.00 : 0;
@@ -53,9 +64,7 @@ const Cart = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button onClick={() => navigate(-1)} className={styles.backBtn}>
-          <FiChevronLeft size={24} />
-        </button>
+        <button onClick={() => navigate(-1)} className={styles.backBtn}><FiChevronLeft size={24} /></button>
         <h1>MOJA KOŠARICA</h1>
         <div style={{ width: 24 }}></div>
       </header>
@@ -66,17 +75,11 @@ const Cart = () => {
         ) : (
           cartItems.map((item) => (
             <div key={item.cartId} className={styles.cartCard}>
-              <img 
-                src={item.image.startsWith('http') ? item.image : `http://localhost:3000${item.image}`} 
-                alt={item.name} 
-                className={styles.productImg}
-              />
+              <img src={item.image.startsWith('http') ? item.image : `http://localhost:3000${item.image}`} className={styles.productImg} />
               <div className={styles.details}>
                 <div className={styles.row}>
                   <h3>{item.name.toUpperCase()}</h3>
-                  <button onClick={() => removeItem(item.cartId)} className={styles.removeBtn}>
-                    <FiTrash2 size={18} />
-                  </button>
+                  <button onClick={() => removeItem(item.cartId)} className={styles.removeBtn}><FiTrash2 size={18} /></button>
                 </div>
                 <p className={styles.sizeLabel}>Veličina: <strong>{item.size}</strong></p>
                 <div className={styles.priceRow}>
@@ -95,21 +98,10 @@ const Cart = () => {
 
       {cartItems.length > 0 && (
         <footer className={styles.footer}>
-          <div className={styles.summaryRow}>
-            <span>Podtotal:</span>
-            <span>{subTotal.toFixed(2)} $</span>
-          </div>
-          <div className={styles.summaryRow}>
-            <span>Dostava:</span>
-            <span>{delivery.toFixed(2)} $</span>
-          </div>
-          <div className={`${styles.summaryRow} ${styles.total}`}>
-            <span>UKUPNO:</span>
-            <span>{total.toFixed(2)} $</span>
-          </div>
-          <button className={styles.checkoutBtn} onClick={() => navigate('/checkout')}>
-            NA BLAGAJNU
-          </button>
+          <div className={styles.summaryRow}><span>Podtotal:</span><span>{subTotal.toFixed(2)} $</span></div>
+          <div className={styles.summaryRow}><span>Dostava:</span><span>{delivery.toFixed(2)} $</span></div>
+          <div className={`${styles.summaryRow} ${styles.total}`}><span>UKUPNO:</span><span>{total.toFixed(2)} $</span></div>
+          <button className={styles.checkoutBtn} onClick={() => navigate('/checkout')}>NA BLAGAJNU</button>
         </footer>
       )}
     </div>

@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: white;
+  z-index: 1000;
+  overflow: hidden; /* Sprječavamo bilo kakav scroll ako je moguće */
+}
+
+.modal {
+  padding: 15px; /* Smanjen padding */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.imageSection {
+  background: #F3F4F6;
+  border-radius: 15px;
+  height: 30vh; /* Smanjeno sa 40vh na 30vh */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin-top: 5px;
+}
+
+.imageSection img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 1rem; /* Smanjen font */
+  font-weight: 800;
+  margin: 10px 0 2px;
+  text-transform: uppercase;
+}
+
+.price {
+  font-size: 1.1rem; /* Smanjen font */
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sectionLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.sizeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px; /* Smanjen razmak između gumba */
+  margin-bottom: 15px;
+}
+
+.sizeBtn {
+  background: white;
+  border: 1px solid #1F2937;
+  border-radius: 12px;
+  padding: 8px; /* Tanji gumbi */
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.selectedSize {
+  background: #1F2937;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: auto; /* Gura na dno */
+  padding-bottom: 70px; /* Ostavlja prostor za okrugli gumb */
+}
+
+.addToCartBtn {
+  flex: 1;
+  background: #5A3E36;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.favBtn {
+  width: 45px; /* Smanjen gumb srca */
+  height: 45px;
+  border-radius: 50%;
+  border: 1px solid #E5E7EB;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #5A3E36;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px; /* Smanjen X gumb */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  z-index: 1001;
+}

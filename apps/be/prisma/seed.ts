@@ -6,14 +6,12 @@ const prisma = new PrismaClient();
 async function main() {
   const password = await bcrypt.hash('admin123', 10);
 
-  // 1. Čišćenje baze
   await prisma.favorite.deleteMany({});
   await prisma.cartItem.deleteMany({});
   await prisma.orderItem.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.category.deleteMany({});
 
-  // 2. Admin user
   await prisma.user.upsert({
     where: { email: 'lana@admin.com' },
     update: {},
@@ -31,11 +29,6 @@ async function main() {
   const shoesPool = ['44', '45', '46', '47'];
   const placeholderImg = 'https://cdn.aboutstatic.com/file/images/620f50467d57a48b88fdcdb16ffb511b.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800';
 
-  const getRandomSizes = (pool: string[]) => {
-    return pool.filter(() => Math.random() > 0.4).concat(pool[0]).slice(0, 3);
-  };
-
-  // 3. Proizvodi sada sadrže IME kategorije umjesto ID-a
   const productsRaw = [
     { name: 'Baggy Cargo Pants', price: 75, category: 'Streetwear', pool: clothesPool },
     { name: 'Oversized Graphic Shirt', price: 35, category: 'Streetwear', pool: clothesPool },
@@ -56,7 +49,6 @@ async function main() {
     { name: 'Suede Chelsea Boots Shoes', price: 160, category: 'Footwear', pool: shoesPool },
   ];
 
-  // 4. Unos proizvoda s automatskim kreiranjem kategorija
   for (const p of productsRaw) {
     await prisma.product.create({
       data: {
@@ -65,8 +57,7 @@ async function main() {
         stock: 10,
         images: [placeholderImg],
         colors: ['Black', 'Grey'],
-        sizes: getRandomSizes(p.pool),
-        // Ovdje se događa magija:
+        sizes: p.pool,
         category: {
           connectOrCreate: {
             where: { name: p.category },

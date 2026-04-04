@@ -6,18 +6,21 @@ import shoppingCartLogo from '../../assets/logo/cart logo.svg';
 
 export const Profile = () => {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [error, setError] = useState('');
-  const [userData, setUserData] = useState<any>(null);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [county, setCounty] = useState('');
 
-useEffect(() => {
+  useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
-      
       if (!token) return;
 
       try {
@@ -31,8 +34,7 @@ useEffect(() => {
 
         if (response.ok) {
           const result = await response.json();
-          const user = result.data || result; 
-          
+          const user = result.data || result;
           setUserData(user);
           setIsLoggedIn(true);
           localStorage.setItem('user', JSON.stringify(user));
@@ -47,13 +49,16 @@ useEffect(() => {
     fetchUserData();
   }, []);
 
-const handleSubmit = async (e: React.SyntheticEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage(''); 
+    setSuccessMessage('');
 
     const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
-    const payload = isRegistering ? { email, password, name } : { email, password };
+    
+    const payload = isRegistering 
+      ? { email, password, name, address, phone } 
+      : { email, password };
 
     try {
       const response = await fetch(`http://localhost:3000${endpoint}`, {
@@ -66,11 +71,11 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
 
       if (response.ok) {
         if (isRegistering) {
-          setSuccessMessage('Registration successful! Please sign in.');
-          setIsRegistering(false); 
-          setPassword(''); 
+          setSuccessMessage('Registracija uspješna! Molimo prijavite se.');
+          setIsRegistering(false);
+          setPassword('');
         } else {
-          const data = result.data || result; 
+          const data = result.data || result;
           const token = data.token;
           const user = data.user;
 
@@ -80,14 +85,14 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
             setUserData(user);
             setIsLoggedIn(true);
           } else {
-            setError("Server did not return user data.");
+            setError("Server nije vratio podatke o korisniku.");
           }
         }
       } else {
-        setError(result.message || 'Action failed. Please check your data.');
+        setError(result.message || 'Akcija neuspješna. Provjerite podatke.');
       }
     } catch (err) {
-      setError('Server is not available.');
+      setError('Server nije dostupan.');
     }
   };
 
@@ -104,7 +109,7 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
         <header className={styles.profileHeader}>
           <div className={styles.headerLeft}>
             <img src={shoppingCartLogo} alt="Logo" className={styles.logoIcon} />
-            <h1 className={styles.headerTitle}>PROFILE</h1>
+            <h1 className={styles.headerTitle}>PROFIL</h1>
           </div>
           <div className={styles.notificationIcon}>🔔</div>
         </header>
@@ -117,8 +122,9 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
             <div className={styles.textContainer}>
               <p><strong>IME:</strong> {userData.name || 'Nije uneseno'}</p>
               <p><strong>ADRESA:</strong> {userData.address || 'Nije uneseno'}</p>
+              <p><strong>TELEFON:</strong> {userData.phone || 'Nije uneseno'}</p>
               <p><strong>EMAIL:</strong> {userData.email}</p>
-              <p><strong>ŽUPANIJA:</strong> {userData.county || 'Splitsko-dalmatinska'}</p>
+              <p><strong>ŽUPANIJA:</strong> {userData.county || 'Nije uneseno'}</p>
             </div>
           </div>
           <hr className={styles.divider} />
@@ -129,12 +135,12 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
             <div className={styles.textContainer}>
               <p><strong>IBAN:</strong> {userData.iban || 'HR****************'}</p>
               <p><strong>DATUM ISTEKA:</strong> 12/28</p>
-              <p><strong>ISCT KOD:</strong> ***</p>
+              <p><strong>CVV KOD:</strong> ***</p>
             </div>
           </div>
         </div>
 
-        <button onClick={handleLogout} className={styles.logoutBtn}>LOGOUT</button>
+        <button onClick={handleLogout} className={styles.logoutBtn}>ODJAVA</button>
       </div>
     );
   }
@@ -142,35 +148,56 @@ const handleSubmit = async (e: React.SyntheticEvent) => {
   return (
     <div className={styles.container}>
       <div className={styles.loginCard}>
-        <h2>{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
-        <p>{isRegistering ? 'Fill in your details' : 'Please sign in to continue'}</p>
+        <h2>{isRegistering ? 'Kreiraj račun' : 'Dobrodošli natrag'}</h2>
+        <p>{isRegistering ? 'Popunite podatke za registraciju' : 'Prijavite se za nastavak'}</p>
         
         {error && <p className={styles.errorText}>{error}</p>}
         {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
+        
         <form onSubmit={handleSubmit} className={styles.form}>
           {isRegistering && (
             <div className={styles.inputGroup}>
-              <label>Name</label>
+              <label>Ime i prezime</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
           )}
+
           <div className={styles.inputGroup}>
             <label>Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
+
           <div className={styles.inputGroup}>
-            <label>Password</label>
+            <label>Lozinka</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
+
+          {isRegistering && (
+            <>
+              <div className={styles.inputGroup}>
+                <label>Adresa</label>
+                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} required />
+              </div>
+              <div className={styles.inputGroup}>
+                <label>Telefon</label>
+                <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+              </div>
+              <div className={styles.inputGroup}>
+                <label>Županija</label>
+                <input type="text" value={county} onChange={(e) => setCounty(e.target.value)} required />
+              </div>
+            </>
+          )}
+
           <button type="submit" className={styles.loginBtn}>
-            {isRegistering ? 'Sign Up' : 'Sign In'}
+            {isRegistering ? 'Registriraj se' : 'Prijavi se'}
           </button>
         </form>
         
         <div className={styles.footer}>
-          {isRegistering ? 'Already have an account?' : "Don't have an account?"}
+          {isRegistering ? 'Već imate račun?' : "Nemate račun?"}
           <span onClick={() => { setIsRegistering(!isRegistering); setError(''); }}>
-            {isRegistering ? ' Sign In' : ' Sign Up'}
+            {isRegistering ? ' Prijavi se' : ' Registriraj se'}
           </span>
         </div>
       </div>

@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiTruck, FiMapPin, FiChevronLeft } from 'react-icons/fi';
 import api from '../../api/axiosInstance';
 import styles from './Checkout.module.css';
@@ -8,55 +7,70 @@ import styles from './Checkout.module.css';
 const Checkout = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
-  // Dohvaćamo podatke o korisniku iz localStorage (spremljeno pri login-u)
-  const [customerData] = useState({
-    name: localStorage.getItem('userName') || 'Filip Dunpić',
-    address: localStorage.getItem('userAddress') || 'Ul. Ruđera Boškovića 32, Split',
-    phone: localStorage.getItem('userPhone') || '091 123 4567',
-    county: 'Splitsko Dalmatinska županija',
-    zip: '21430 Hrvatska'
+
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await api.get('/users/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data.data || response.data;
+      } catch (error) {
+        return {
+          name: localStorage.getItem('userName') || 'Korisnik',
+          address: localStorage.getItem('userAddress') || 'Adresa nije unesena',
+          email: localStorage.getItem('userEmail') || 'Nema e-maila',
+          phone: localStorage.getItem('userPhone') || 'Nema telefona'
+        };
+      }
+    }
   });
 
   const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-  const subTotal = cartItems.reduce((acc: any, item: any) => acc + item.price * item.quantity, 0);
+  const subTotal = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
   const deliveryPrice = 5.00;
   const totalPrice = subTotal + deliveryPrice;
 
-  const orderMutation = useMutation({
-    mutationFn: async () => {
-      const token = localStorage.getItem('token');
-      const orderPayload = {
-        customerName: customerData.name,
-        customerPhone: customerData.phone,
-        shippingAddress: `${customerData.address}, ${customerData.zip}`,
-        paymentMethod: 'CASH', // Ili CARD ovisno o selekciji
+    const orderMutation = useMutation({
+        mutationFn: async () => {
+        const token = localStorage.getItem('token');
+        
+        const orderPayload = {
+        customerName: userData?.name,
+        customerPhone: userData?.phone || 'Nema telefona',
+        shippingAddress: userData?.address || 'Nema adrese',
+        paymentMethod: 'CASH', 
         deliveryMethod: 'Pošta',
-        subTotal: subTotal,
-        deliveryPrice: deliveryPrice,
-        totalPrice: totalPrice,
+        subTotal: Number(subTotal),
+        deliveryPrice: Number(deliveryPrice),
+        totalPrice: Number(totalPrice),
+        isCompleted: false, 
+        status: 'PENDING', 
         items: cartItems.map((item: any) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-          size: item.size
+            productId: Number(item.productId),
+            quantity: Number(item.quantity),
+            price: Number(item.price)
         }))
-      };
+        };
 
-      return await api.post('/orders', orderPayload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    },
-    onSuccess: () => {
-      alert('Narudžba uspješno poslana!');
-      localStorage.removeItem('cart'); // Isprazni košaricu nakon kupnje
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      navigate('/'); 
-    },
-    onError: (error: any) => {
-      alert(error.response?.data?.message || 'Greška pri slanju narudžbe');
-    }
-  });
+        return await api.post('/orders', orderPayload, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        },
+        onSuccess: () => {
+        alert('Narudžba uspješno poslana!');
+        localStorage.removeItem('cart');
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        navigate('/');
+        },
+        onError: (error: any) => {
+        console.error("Greška 400 detalji:", error.response?.data);
+        alert(error.response?.data?.message || 'Greška pri slanju narudžbe');
+        }
+    });
+  if (isLoading) return <div className={styles.loader}>Učitavanje...</div>;
 
   return (
     <div className={styles.container}>
@@ -68,7 +82,6 @@ const Checkout = () => {
         <div style={{ width: 24 }}></div>
       </header>
 
-      {/* ADRESA DOSTAVE */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>ADRESA DOSTAVE</h2>
@@ -77,19 +90,20 @@ const Checkout = () => {
         
         <div className={styles.addressBox}>
           <div className={styles.addressInfo}>
-            <h3>Poštanska adresa</h3>
+            <div className={styles.addressTitleGroup}>
+              <h3>Poštanska adresa</h3>
+              <p className={styles.userNameInCard}>{userData?.name}</p>
+            </div>
             <button className={styles.changeBtn}>PROMIJENI</button>
           </div>
           <div className={styles.details}>
-            <p className={styles.name}>{customerData.name}</p>
-            <p>{customerData.address}</p>
-            <p>{customerData.county}</p>
-            <p>{customerData.zip}</p>
+            <p>{userData?.address}</p>
+            <p>{userData?.email}</p>
+            <p>{userData?.phone}</p>
           </div>
         </div>
       </section>
 
-      {/* PAKETOMAT OPCIJA */}
       <div className={styles.parcelOption}>
         <FiMapPin size={20} />
         <span>POKUPI NA PAKETOMATU</span>
@@ -97,7 +111,6 @@ const Checkout = () => {
 
       <hr className={styles.divider} />
 
-      {/* ADRESA NAPLATE */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>ADRESA NAPLATE</h2>
@@ -106,21 +119,22 @@ const Checkout = () => {
         
         <div className={styles.addressBox}>
           <div className={styles.addressInfo}>
-            <h3>Poštanska adresa</h3>
+            <div className={styles.addressTitleGroup}>
+              <h3>Poštanska adresa</h3>
+              <p className={styles.userNameInCard}>{userData?.name}</p>
+            </div>
             <button className={styles.changeBtn}>PROMIJENI</button>
           </div>
           <div className={styles.details}>
-            <p className={styles.name}>{customerData.name}</p>
-            <p>{customerData.address}</p>
-            <p>{customerData.county}</p>
-            <p>{customerData.zip}</p>
+            <p>{userData?.address}</p>
           </div>
         </div>
       </section>
 
       <footer className={styles.footer}>
-        <div className={styles.priceSummary}>
-            <span>Ukupno za platiti: <strong>{totalPrice.toFixed(2)} $</strong></span>
+        <div className={styles.totalRow}>
+            <span>Ukupno za platiti:</span>
+            <strong>{totalPrice.toFixed(2)} $</strong>
         </div>
         <button 
           className={styles.confirmBtn} 

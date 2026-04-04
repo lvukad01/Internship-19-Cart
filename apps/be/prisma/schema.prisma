@@ -11,7 +11,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-enum Role{
+
+enum Role {
   USER
   ADMIN
 }
@@ -28,38 +29,33 @@ enum OrderStatus {
   DELIVERED
 }
 
-model User{
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String    
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
   name      String?
   phone     String?
   address   String?
-  role      Role      @default(USER)
-
+  role      Role       @default(USER)
   favorites Favorite[]
   orders    Order[]
   cartItems CartItem[]
 }
 
-
-model Product{
-  id            Int       @id @default(autoincrement())
-  name          String    
-  price         Float
-  images        String[]
-  colors        String[]
-  stock         Int
-  sizes         String[]
-
-  category      Category   @relation(fields: [categoryId], references: [id])
-  categoryId    Int
-
-  createdAt     DateTime @default(now())
-
-  favorites     Favorite[]
-  orderItems    OrderItem[]
-  cartItems     CartItem[]
+model Product {
+  id         Int         @id @default(autoincrement())
+  name       String
+  price      Float
+  images     String[]
+  colors     String[]
+  stock      Int
+  sizes      String[]
+  category   Category    @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime    @default(now())
+  favorites  Favorite[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 }
 
 model Category {
@@ -70,58 +66,49 @@ model Category {
 
 model Favorite {
   id        Int     @id @default(autoincrement())
-  
   user      User    @relation(fields: [userId], references: [id])
   userId    Int
-  
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
 
-  @@unique([userId, productId]) 
+  @@unique([userId, productId])
 }
 
 model Order {
-  id              Int         @id @default(autoincrement())
-  createdAt       DateTime    @default(now())
-  isCompleted     Boolean     @default(false)  
-  subTotal        Float  
-  deliveryPrice   Float       @default(0)
-  totalPrice      Float     
-  
-  paymentMethod   PaymentMethod     
-  deliveryMethod  String    
-  
+  id              Int           @id @default(autoincrement())
+  createdAt       DateTime      @default(now())
+  isCompleted     Boolean       @default(false)
+  subTotal        Float
+  deliveryPrice   Float         @default(0)
+  totalPrice      Float
+  paymentMethod   PaymentMethod
+  deliveryMethod  String
   customerName    String
   customerPhone   String
-  shippingAddress String  
-  status          OrderStatus @default(PENDING) 
-  
+  shippingAddress String
+  status          OrderStatus   @default(PENDING)
   userId          Int
-  user            User        @relation(fields: [userId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
   items           OrderItem[]
 }
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
   quantity  Int     @default(1)
-  price     Float   
-  
-  order     Order   @relation(fields: [orderId], references: [id])
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   Int
-  
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
 }
 
 model CartItem {
-  id Int @id @default(autoincrement())
-
-  userId Int
+  id        Int     @id @default(autoincrement())
+  userId    Int
   productId Int
-  quantity Int @default(1)
-
-  user User @relation(fields:[userId], references:[id])
-  product Product @relation(fields:[productId], references:[id])
+  quantity  Int     @default(1)
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
 }

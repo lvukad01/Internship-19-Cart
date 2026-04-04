@@ -1,3 +1,4 @@
+import React from 'react'; 
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Welcome from './pages/Welcome/Welcome';
@@ -13,6 +14,27 @@ import ErrorPage from './pages/ErrorPage/ErrorPage';
 import AdminDashboard from './pages/Admin/AdminDashboard/AdminDashboard';
 
 const queryClient = new QueryClient();
+const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const userData = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+
+  if (!userData || !token) {
+    return <Navigate to="/home" replace />;
+  }
+
+  try {
+    const user = JSON.parse(userData);
+
+    if (user.role === 'ADMIN') {
+      return <>{children}</>;
+    }
+
+    return <Navigate to="/home" replace />;
+  } catch (error) {
+    return <Navigate to="/home" replace />;
+  }
+};
+
 
 const AppContent = () => {
   const location = useLocation();
@@ -30,7 +52,16 @@ const AppContent = () => {
         <Route path="/product/:id" element={<Product />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order-error" element={<ErrorPage />} />
-        <Route path="/admin/*" element={<AdminDashboard />} />
+        
+        <Route 
+          path="/admin/*" 
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          } 
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {!isAdminPath && <BottomNav />}

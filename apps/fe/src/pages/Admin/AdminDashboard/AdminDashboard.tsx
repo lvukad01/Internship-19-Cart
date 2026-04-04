@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AdminOrders from '../AdminOrders';
 import styles from './AdminDashboard.module.css';
 import AdminProducts from '../AdminProducts';
+import AdminCategories from '../AdminCategories';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'orders'>('products');
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
 
       <main className={styles.content}>
         {activeTab === 'products' && <AdminProducts />}
+        {activeTab === 'categories' && <AdminCategories />}
         {activeTab === 'orders' && <AdminOrders />}
       </main>
     </div>

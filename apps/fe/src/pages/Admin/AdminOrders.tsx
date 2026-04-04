@@ -1,59 +1,87 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import styles from './AdminSections.module.css';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import styles from "./AdminSections.module.css";
 
 const AdminOrders = () => {
   const queryClient = useQueryClient();
-  const token = localStorage.getItem('token');
 
-  const { data: orders } = useQuery({
-    queryKey: ['admin-orders'],
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["admin-orders"],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/orders', {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await axios.get("http://localhost:3000/api/orders", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       return res.data;
-    }
+    },
   });
 
-  const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: number, status: string }) => {
-      await axios.patch(`http://localhost:3000/api/orders/${id}/status`, { status }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+  const orders = Array.isArray(response) ? response : response?.data || [];
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      await axios.patch(
+        `http://localhost:3000/api/orders/${id}/status`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-orders'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
   });
+
+  if (isLoading) return <div>Učitavanje narudžbi...</div>;
 
   return (
     <div className={styles.section}>
-      <h3>Sve Narudžbe</h3>
+      <div className={styles.header}>
+        <h3>Upravljanje Narudžbama</h3>
+      </div>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Kupac</th>
+            <th>Korisnik</th>
             <th>Iznos</th>
+            <th>Datum</th>
             <th>Status</th>
-            <th>Promijeni Status</th>
+            <th>Akcije</th>
           </tr>
         </thead>
         <tbody>
-          {orders?.map((o: any) => (
-            <tr key={o.id}>
-              <td>#{o.id}</td>
-              <td>{o.customerName}</td>
-              <td>{o.totalPrice} $</td>
-              <td className={styles[`status${o.status}`]}>{o.status}</td>
+          {orders.map((order: any) => (
+            <tr key={order.id}>
+              <td>#{order.id}</td>
+              <td>{order.user?.email || "Gost"}</td>
+              <td>{order.total} $</td>
+              <td>{new Date(order.createdAt).toLocaleDateString("hr-HR")}</td>
               <td>
-                <select 
-                  value={o.status} 
-                  onChange={(e) => updateStatus.mutate({ id: o.id, status: e.target.value })}
+                <span className={`${styles.statusBadge} ${styles[order.status?.toLowerCase()]}`}>
+                  {order.status}
+                </span>
+              </td>
+              <td>
+                <select
+                  value={order.status}
+                  onChange={(e) =>
+                    updateStatusMutation.mutate({
+                      id: order.id,
+                      status: e.target.value,
+                    })
+                  }
+                  className={styles.statusSelect}
                 >
                   <option value="PENDING">PENDING</option>
-                  <option value="CONFIRMED">CONFIRMED</option>
+                  <option value="PROCESSING">PROCESSING</option>
                   <option value="SHIPPED">SHIPPED</option>
                   <option value="DELIVERED">DELIVERED</option>
+                  <option value="CANCELLED">CANCELLED</option>
                 </select>
               </td>
             </tr>

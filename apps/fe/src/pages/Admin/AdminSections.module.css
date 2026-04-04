@@ -1,5 +1,51 @@
-.section { padding: 20px; }
-.table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-.table th, .table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-.adminThumb { width: 50px; height: 50px; object-fit: cover; }
-.deleteBtn { color: red; cursor: pointer; border: none; background: none; }
+.toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.filterSelect {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  min-width: 150px;
+}
+
+.productCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lowStock { color: #ef4444; font-weight: 600; }
+.inStock { color: #10b981; font-weight: 600; }
+
+.row { display: flex; gap: 12px; }
+.row input { flex: 1; }
+
+.uploadBox {
+  border: 1px dashed #cbd5e1;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.previewImages {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.previewImages img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}

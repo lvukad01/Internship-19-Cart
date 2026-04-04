@@ -15,9 +15,12 @@ export class CategoriesService {
       },
     });
   }
-
   findAll() {
-    return this.prisma.category.findMany();
+    return this.prisma.category.findMany({
+      include: {
+        products: true,
+      },
+    });
   }
 
   findOne(id: number) {
@@ -38,15 +41,20 @@ export class CategoriesService {
   async remove(id: number) {
     const category = await this.prisma.category.findUnique({
       where: { id },
-      include: { _count: { select: { products: true } } }
     });
 
-    if (category && category._count.products > 0) {
-      throw new BadRequestException('Cannot delete category because it has products linked to it.');
+    if (!category) {
+      throw new BadRequestException('Kategorija nije pronađena.');
     }
 
-    return this.prisma.category.delete({
-      where: { id },
+    return this.prisma.$transaction(async (tx) => {
+      await tx.product.deleteMany({
+        where: { categoryId: id },
+      });
+
+      return tx.category.delete({
+        where: { id },
+      });
     });
   }
 }

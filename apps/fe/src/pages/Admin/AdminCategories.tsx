@@ -35,18 +35,29 @@ const AdminCategories = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (category: any) => {
-      if (category.products?.length > 0) {
-        alert(`Nije moguće obrisati kategoriju "${category.name}" jer sadrži ${category.products.length} proizvoda. Prvo premjestite ili obrišite proizvode.`);
-        return;
+      const productCount = category._count?.products ?? category.products?.length ?? 0;
+      
+      let confirmMsg = `Jeste li sigurni da želite obrisati kategoriju "${category.name}"?`;
+      
+      if (productCount > 0) {
+        confirmMsg = `UPOZORENJE: Kategorija "${category.name}" sadrži ${productCount} proizvoda. 
+Brisanjem kategorije obrisat ćete i SVE povezane proizvode! 
+Želite li nastaviti?`;
       }
-      if (!window.confirm(`Jeste li sigurni da želite obrisati kategoriju "${category.name}"?`)) return;
+
+      if (!window.confirm(confirmMsg)) return;
       
       await axios.delete(`http://localhost:3000/api/categories/${category.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
     onSuccess: () => {
+      // Osvježavamo i kategorije i proizvode jer su proizvodi možda obrisani kaskadno
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || "Došlo je do greške pri brisanju");
     }
   });
 
@@ -73,25 +84,28 @@ const AdminCategories = () => {
             </tr>
           </thead>
           <tbody>
-            {categories?.map((c: any) => (
-              <tr key={c.id}>
-                <td>#{c.id}</td>
-                <td style={{ fontWeight: 600 }}>{c.name}</td>
-                <td>
-                  <span className={styles.badge}>
-                    {c.products?.length || 0} proizvoda
-                  </span>
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  <button 
-                    className={styles.deleteBtn} 
-                    onClick={() => deleteMutation.mutate(c)}
-                  >
-                    Obriši
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {categories?.map((c: any) => {
+              const count = c._count?.products ?? c.products?.length ?? 0;
+              return (
+                <tr key={c.id}>
+                  <td>#{c.id}</td>
+                  <td style={{ fontWeight: 600 }}>{c.name}</td>
+                  <td>
+                    <span className={count > 0 ? styles.badge : styles.lowStock}>
+                      {count} proizvoda
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button 
+                      className={styles.deleteBtn} 
+                      onClick={() => deleteMutation.mutate(c)}
+                    >
+                      Obriši
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

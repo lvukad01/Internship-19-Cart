@@ -1,0 +1,69 @@
+.adminContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa; /* Svijetlo siva pozadina za radni prostor */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #1a1c23; 
+  color: #ffffff;
+  padding: 30px 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+  text-align: center;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+  color: #4ade80; 
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sidebar button {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  padding: 15px 25px;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar button:hover {
+  background-color: #2d3748;
+  color: white;
+}
+
+.active {
+  background-color: #2d3748;
+  color: #4ade80 !important;
+  border-left: 4px solid #4ade80 !important;
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  max-width: calc(100vw - 260px); 
+  overflow-y: auto;
+}
+#root {
+  width: 100%;
+  min-height: 100vh;
+  max-width: 1200px;
+}

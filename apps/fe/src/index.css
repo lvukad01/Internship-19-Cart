@@ -31,7 +31,6 @@
 
 #root {
   width: 100%;
-  max-width: 430px; 
   margin: 0 auto;
   min-height: 100svh;
   background-color: var(--bg);
@@ -43,7 +42,18 @@
   text-align: left; 
   margin-bottom: 40px;
 }
+.mobile-root {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
 
+.admin-root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
 h1 {
   font-family: var(--heading);
   font-size: 32px; 

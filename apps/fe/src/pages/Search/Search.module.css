@@ -13,7 +13,6 @@
 
 .searchIcon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
 
-/* Tabovi */
 .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
 .tab, .activeTab {
   padding: 8px 20px; border-radius: 20px; border: 1px solid #E5E7EB;
@@ -21,7 +20,6 @@
 }
 .activeTab { background: black; color: white; border-color: black; }
 
-/* Grid */
 .productGrid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
 }

@@ -18,9 +18,15 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'undefined' || token === null) {
+      navigate('/profile');
+      return;
+    }
+
     const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCartItems(savedCart);
-  }, []);
+  }, [navigate]);
 
   const updateQuantity = (cartId: number, delta: number) => {
     const updated = cartItems.map(item => {

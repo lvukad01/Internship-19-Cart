@@ -4,11 +4,12 @@ import Welcome from './pages/Welcome/Welcome';
 import Home from './pages/Home/Home';
 import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
-import Favorites from './pages/Favorites';
+import Favorites from './pages/Favorites/Favorites';
 import  {BottomNav}  from './components/BottomNav/BottomNav';
 import Search from './pages/Search/Search';
 import Product from './pages/Product/Product';
 import Checkout from './pages/Checkout/Checkout';
+import ErrorPage from './pages/ErrorPage/ErrorPage';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-error" element={<ErrorPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
           

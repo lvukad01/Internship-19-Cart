@@ -1,0 +1,121 @@
+.container { 
+  padding: 20px; 
+  background: #fff; 
+  min-height: 100vh; 
+}
+
+.header { 
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  margin-bottom: 30px; 
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.productGrid {
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px;
+}
+
+.productCard { 
+  position: relative; 
+  display: flex; 
+  flex-direction: column; 
+  cursor: pointer;
+}
+
+.imageContainer {
+  background: #F3F4F6; 
+  border-radius: 15px; 
+  height: 220px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  position: relative; 
+  padding: 15px;
+  overflow: hidden;
+}
+
+.imageContainer img { 
+  max-width: 100%; 
+  max-height: 100%; 
+  object-fit: contain; 
+  transition: transform 0.3s ease;
+}
+
+.productCard:hover .imageContainer img {
+  transform: scale(1.05);
+}
+
+.wishlistIcon {
+  position: absolute; 
+  top: 12px; 
+  right: 12px; 
+  color: #1F2937; 
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.details { 
+  padding: 12px 0; 
+  text-align: center; 
+}
+
+.brandName { 
+  font-weight: 700; 
+  font-size: 12px; 
+  text-transform: uppercase; 
+  margin: 0; 
+  color: #111;
+}
+
+.productName { 
+  font-size: 12px; 
+  color: #6B7280; 
+  margin: 2px 0; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price { 
+  font-weight: 700; 
+  font-size: 14px; 
+  display: block; 
+  margin-top: 4px; 
+  color: #000;
+}
+
+.colors { 
+  display: flex; 
+  justify-content: center; 
+  gap: 5px; 
+  margin-top: 8px; 
+}
+
+.colorDot { 
+  width: 12px; 
+  height: 12px; 
+  border-radius: 50%; 
+  border: 1px solid #E5E7EB; 
+}
+
+.emptyMsg {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 100px;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+

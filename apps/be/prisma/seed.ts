@@ -30,9 +30,18 @@ async function main() {
   const placeholderImg = 'https://cdn.aboutstatic.com/file/images/620f50467d57a48b88fdcdb16ffb511b.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800';
 
   const productsRaw = [
-    { name: 'Baggy Cargo Pants', price: 75, category: 'Streetwear', pool: clothesPool },
-    { name: 'Oversized Graphic Shirt', price: 35, category: 'Streetwear', pool: clothesPool },
-    { name: 'Urban Techwear Jacket', price: 120, category: 'Streetwear', pool: clothesPool },
+    { 
+      name: 'WEEKDAY Barrel Jeans Abell', images:['https://cdn.aboutstatic.com/file/images/0d1336199a2a35518d577228f889ceff.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'], 
+      price: 75, category: 'Streetwear', pool: clothesPool 
+    },
+    { 
+      name: 'WEEKDAY Between-Season Jacket Eiko', images:['https://cdn.aboutstatic.com/file/images/dc41d29d58a8c242761415032206aeb5.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'], 
+      price: 35, category: 'Streetwear', pool: clothesPool 
+    },
+    { 
+      name: 'EDITED Between-Season Jacket Jilian', images:['https://cdn.aboutstatic.com/file/images/e26c37dd0895df57e4260181a0eea6dc.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'],
+      price: 120, category: 'Streetwear', pool: clothesPool 
+    },
     { name: 'Heavy Cotton Hoodie', price: 60, category: 'Streetwear', pool: clothesPool },
     { name: 'Street Skate Shorts', price: 45, category: 'Streetwear', pool: clothesPool },
 
@@ -47,6 +56,27 @@ async function main() {
     { name: 'Leather Formal Shoes', price: 130, category: 'Footwear', pool: shoesPool },
     { name: 'Running Tech Shoes', price: 110, category: 'Footwear', pool: shoesPool },
     { name: 'Suede Chelsea Boots Shoes', price: 160, category: 'Footwear', pool: shoesPool },
+
+    {
+      name: 'ONLY PLAY Athletic Sweatshirt in Fir', images: ['https://cdn.aboutstatic.com/file/images/1779094f710f9b1bcc83f9b246442aff.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'], 
+      price: 38, category: 'Sportswear', pool: clothesPool 
+    },
+    { 
+      name: 'ONLY PLAY Tapered Workout Pants', images:['https://cdn.aboutstatic.com/file/images/bc15ad9f534abe43cd9f340cf2fc03be.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'], 
+      price: 35, category: 'Streetwear', pool: clothesPool 
+    },
+    { 
+      name: 'ONLY PLAY Athletic Zip-Up Hoodie in Black', images:['https://cdn.aboutstatic.com/file/images/224f8d0dcd4998df1e896c024eab0c6e.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'],
+      price: 120, category: 'Streetwear', pool: clothesPool 
+    },
+    { 
+      name: 'On Running Shoes Cloudmonster', images:['https://cdn.aboutstatic.com/file/images/8f856878a686e5a617e9f464e302e7bc.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'],
+      price: 60, category: 'Streetwear', pool: shoesPool 
+    },
+    { 
+      name: 'CMP Athletic Zip-Up Hoodie in Black', images:['https://cdn.aboutstatic.com/file/images/1d01e455641832d6a393f0755ec3d458.png?bg=F4F4F5&quality=75&trim=1&height=1067&width=800'],
+      price: 68, category: 'Streetwear', pool: clothesPool 
+    },
   ];
 
   for (const p of productsRaw) {
@@ -55,7 +85,7 @@ async function main() {
         name: p.name,
         price: p.price,
         stock: 10,
-        images: [placeholderImg],
+        images: [p.images ? p.images[0] : placeholderImg],
         colors: ['Black', 'Grey'],
         sizes: p.pool,
         category: {

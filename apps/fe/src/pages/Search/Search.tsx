@@ -2,9 +2,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import axios from 'axios';
-import { getProducts } from '../../api/products';
-import styles from './Search.module.css';
 import { FiHeart, FiSearch, FiChevronLeft } from 'react-icons/fi';
+import styles from './Search.module.css';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,39 +14,43 @@ const Search = () => {
   const activeCategory = searchParams.get('category') || 'Sve';
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => getProducts(),
-  });
-
-  const { data: categoriesData = [] } = useQuery({
-    queryKey: ['categories'],
+  const { data: productsRes } = useQuery({
+    queryKey: ['products', 'search'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3000/api/categories');
-      return Array.isArray(response.data) ? response.data : (response.data.data || []);
+      const response = await axios.get('http://localhost:3000/api/products?limit=100');
+      return response.data;
     },
   });
 
-  const { data: favorites = [] } = useQuery({
+  const { data: categoriesRes } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await axios.get('http://localhost:3000/api/categories');
+      return response.data;
+    },
+  });
+
+  const { data: favoritesRes } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
       const response = await axios.get('http://localhost:3000/api/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return Array.isArray(response.data) ? response.data : (response.data.data || []);
+      return response.data;
     },
     enabled: !!token,
   });
 
-  const categoryNames = useMemo(() => ['Sve', ...categoriesData.map((c: any) => c.name)], [categoriesData]);
+  const products = useMemo(() => productsRes?.data || [], [productsRes]);
+  const categories = useMemo(() => categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []), [categoriesRes]);
+  const favorites = useMemo(() => favoritesRes?.data || (Array.isArray(favoritesRes) ? favoritesRes : []), [favoritesRes]);
+
+  const categoryNames = useMemo(() => ['Sve', ...categories.map((c: any) => c.name)], [categories]);
 
   const toggleFavoriteMutation = useMutation({
     mutationFn: async ({ productId, isFavorite }: { productId: number, isFavorite: boolean }) => {
-      if (!token) {
-        navigate('/profile');
-        return;
-      }
+      if (!token) return navigate('/profile');
       if (isFavorite) {
         await axios.delete(`http://localhost:3000/api/favorites/product/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -58,27 +61,18 @@ const Search = () => {
         });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
   });
 
   const filteredProducts = useMemo(() => {
     return products.filter((p: any) => {
+      const pCatName = p.category?.name || p.category;
       const categoryMatch = activeCategory === 'Sve' || 
-        (typeof p.category === 'object' ? p.category.name === activeCategory : p.category === activeCategory);
-      
-      const searchMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase()));
-
+        String(pCatName).toLowerCase().trim() === String(activeCategory).toLowerCase().trim();
+      const searchMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
       return categoryMatch && searchMatch;
     });
   }, [products, activeCategory, searchTerm]);
-
-  const handleFavorite = (e: React.MouseEvent, productId: number, isFavorite: boolean) => {
-    e.stopPropagation();
-    toggleFavoriteMutation.mutate({ productId, isFavorite });
-  };
 
   return (
     <div className={styles.container}>
@@ -112,37 +106,21 @@ const Search = () => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product: any) => {
             const isFavorite = favorites.some((fav: any) => fav.productId === product.id);
-            const displayImage = product.images?.[0]?.startsWith('http') 
-              ? product.images[0] 
-              : `http://localhost:3000${product.images?.[0]}`;
+            const img = product.images?.[0];
+            const displayImage = img?.startsWith('http') ? img : `http://localhost:3000${img}`;
 
             return (
-              <div 
-                key={product.id} 
-                className={styles.productCard}
-                onClick={() => navigate(`/product/${product.id}`)}
-              >
+              <div key={product.id} className={styles.productCard} onClick={() => navigate(`/product/${product.id}`)}>
                 <div className={styles.imageContainer}>
-                  <div 
-                    className={styles.wishlistIcon} 
-                    onClick={(e) => handleFavorite(e, product.id, isFavorite)}
-                  >
-                    <FiHeart 
-                      fill={isFavorite ? "black" : "none"} 
-                      stroke={isFavorite ? "black" : "currentColor"} 
-                    />
+                  <div className={styles.wishlistIcon} onClick={(e) => { e.stopPropagation(); toggleFavoriteMutation.mutate({ productId: product.id, isFavorite }); }}>
+                    <FiHeart fill={isFavorite ? "black" : "none"} stroke={isFavorite ? "black" : "currentColor"} />
                   </div>
                   <img src={displayImage} alt={product.name} />
                 </div>
                 <div className={styles.details}>
-                  <h4 className={styles.brandName}>{product.brand || product.name.split(' ')[0]}</h4> 
+                  <h4 className={styles.brandName}>{product.name.split(' ')[0]}</h4> 
                   <p className={styles.productName}>{product.name}</p>
                   <span className={styles.price}>{product.price.toFixed(2)} $</span>
-                  <div className={styles.colors}>
-                    {product.colors?.map((c: string) => (
-                      <span key={c} className={styles.colorDot} style={{ backgroundColor: c.toLowerCase() }}></span>
-                    ))}
-                  </div>
                 </div>
               </div>
             )

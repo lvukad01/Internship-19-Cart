@@ -1,36 +1,32 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProducts, type Product } from '../../api/products';
-import styles from './Home.module.css';
-import cartLogo from '../../assets/logo/cart logo.svg';
-import brandLogo from '../../assets/logo/brand name.svg';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FiBell, FiSearch } from 'react-icons/fi';
+import cartLogo from '../../assets/logo/cart logo.svg';
+import brandLogo from '../../assets/logo/brand name.svg';
+import styles from './Home.module.css';
 
 const Home = () => {
   const navigate = useNavigate();
 
-  const { data: productsData, isLoading, error } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => getProducts(),
+  const { data: productsRes } = useQuery({
+    queryKey: ['products', 'home'],
+    queryFn: async () => {
+      const response = await axios.get('http://localhost:3000/api/products?limit=100');
+      return response.data;
+    },
   });
 
-  if (isLoading) return <div className={styles.loader}>Loading...</div>;
-  if (error) return <div className={styles.error}>Error loading data.</div>;
+  const { data: categoriesRes } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await axios.get('http://localhost:3000/api/categories');
+      return response.data;
+    },
+  });
 
-  const products = Array.isArray(productsData) ? productsData : (productsData as any)?.data || [];
-
-  const categoriesMap = products.reduce((acc: Record<string, Product>, product: Product) => {
-    const categoryName = typeof product.category === 'object' 
-      ? (product.category as any).name 
-      : product.category;
-
-    if (!acc[categoryName]) {
-      acc[categoryName] = product;
-    }
-    return acc;
-  }, {} as Record<string, Product>);
-
-  const categoryList: Product[] = Object.values(categoriesMap);
+  const products = productsRes?.data || [];
+  const categories = categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []);
 
   const getCardStyle = (index: number) => {
     const stylesList = [
@@ -52,37 +48,34 @@ const Home = () => {
         </div>
       </header>
 
-      <div className={styles.searchContainer}>
+      <div className={styles.searchContainer} onClick={() => navigate('/search')}>
         <FiSearch className={styles.searchIcon} />
-        <input type="text" placeholder="Search..." className={styles.searchInput} />
+        <input type="text" placeholder="Search..." className={styles.searchInput} readOnly />
       </div>
 
       <div className={styles.grid}>
-        {categoryList.map((categoryProduct: Product, index: number) => {
+        {categories.map((category: any, index: number) => {
           const { size, color } = getCardStyle(index);
-          const categoryName = typeof categoryProduct.category === 'object' 
-            ? (categoryProduct.category as any).name 
-            : categoryProduct.category;
+          const sampleProduct = products.find((p: any) => 
+            (p.category?.name || p.category) === category.name
+          );
 
-          const displayImage = categoryProduct.images && categoryProduct.images.length > 0
-            ? categoryProduct.images[0]
-            : 'https://placehold.co/150';
+          const displayImage = sampleProduct?.images?.[0]
+            ? (sampleProduct.images[0].startsWith('http') ? sampleProduct.images[0] : `http://localhost:3000${sampleProduct.images[0]}`)
+            : 'https://placehold.co/400x600?text=' + category.name;
 
           return (
             <div 
-              key={categoryName} 
+              key={category.id} 
               className={`${styles.card} ${size} ${color}`}
-              onClick={() => navigate(`/search?category=${encodeURIComponent(categoryName)}`)}
+              onClick={() => navigate(`/search?category=${encodeURIComponent(category.name)}`)}
             >
               <div className={styles.imageWrapper}>
-                <img 
-                  src={displayImage.startsWith('http') ? displayImage : `http://localhost:3000${displayImage}`}
-                  alt={categoryName} 
-                />
+                <img src={displayImage} alt={category.name} />
               </div>
               
               <div className={styles.cardInfo}>
-                <h3 className={styles.categoryTitle}>{categoryName}</h3>
+                <h3 className={styles.categoryTitle}>{category.name}</h3>
                 <p>Explore collection</p>
               </div>
               <span className={styles.arrow}>&gt;</span>

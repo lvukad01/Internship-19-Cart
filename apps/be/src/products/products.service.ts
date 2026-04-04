@@ -23,23 +23,32 @@ export class ProductsService {
     });
   }
 
-  async findAll(page: number, limit: number, search?: string, categoryId?: number) {
-    const skip = (page - 1) * limit;
+  async findAll(page: number = 1, limit: number = 100, search?: string, categoryId?: number) {
+    const p = Number(page) || 1;
+    const l = Number(limit) || 100;
+    const skip = (p - 1) * l;
+
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (categoryId) {
+      where.categoryId = Number(categoryId);
+    }
 
     return this.prisma.product.findMany({
+      where,
       skip,
-      take: limit,
-      where: {
-        OR: search ? [
-          { name: { contains: search, mode: 'insensitive' } },
-        ] : undefined,
-        categoryId: categoryId ? categoryId : undefined,
-      },
+      take: l,
       include: {
         category: true,
       },
       orderBy: {
-        createdAt: 'desc', 
+        createdAt: 'desc',
       },
     });
   }
@@ -55,13 +64,13 @@ export class ProductsService {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const { categoryId, ...productData } = updateProductDto;
-
     return this.prisma.product.update({
       where: { id },
       data: {
         ...productData,
-        category: categoryId ? { connect: { id: categoryId } } : undefined,
+        category: categoryId ? { connect: { id: Number(categoryId) } } : undefined,
       },
+      include: { category: true }, 
     });
   }
 

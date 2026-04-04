@@ -41,6 +41,7 @@
   box-sizing: border-box;
   box-shadow: var(--shadow);
   text-align: left; 
+  margin-bottom: 40px;
 }
 
 h1 {

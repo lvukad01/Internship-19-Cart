@@ -8,6 +8,7 @@ import Favorites from './pages/Favorites';
 import  {BottomNav}  from './components/BottomNav/BottomNav';
 import Search from './pages/Search/Search';
 import Product from './pages/Product/Product';
+import Checkout from './pages/Checkout/Checkout';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/search" element={<Search />} />
             <Route path="/product/:id" element={<Product />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
           

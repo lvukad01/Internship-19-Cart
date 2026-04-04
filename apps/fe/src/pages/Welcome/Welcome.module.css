@@ -1,3 +1,6 @@
+#root{
+  padding-bottom: 0px;
+}
 .welcomeContainer {
   display: flex;
   align-items: center;

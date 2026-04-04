@@ -23,6 +23,7 @@
   background-color: #f8f9fa;
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
   overflow-x: hidden;
+  margin-bottom: 80px;
 }
 .hero {
   position: relative;
@@ -188,4 +189,7 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+main {
+  margin-bottom: 80px; 
 }

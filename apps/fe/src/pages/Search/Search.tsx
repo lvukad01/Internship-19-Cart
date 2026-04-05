@@ -14,6 +14,7 @@ const Search = () => {
   const activeCategory = searchParams.get('category') || 'Sve';
   const [searchTerm, setSearchTerm] = useState('');
 
+  // 1. Dohvaćanje proizvoda
   const { data: productsRes } = useQuery({
     queryKey: ['products', 'search'],
     queryFn: async () => {
@@ -22,6 +23,7 @@ const Search = () => {
     },
   });
 
+  // 2. Dohvaćanje kategorija
   const { data: categoriesRes } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -30,6 +32,7 @@ const Search = () => {
     },
   });
 
+  // 3. Dohvaćanje favorita
   const { data: favoritesRes } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
@@ -42,9 +45,13 @@ const Search = () => {
     enabled: !!token,
   });
 
-  const products = useMemo(() => productsRes?.data || [], [productsRes]);
+  // Sigurno izvlačenje podataka iz API odgovora
+  const products = useMemo(() => productsRes?.data || (Array.isArray(productsRes) ? productsRes : []), [productsRes]);
   const categories = useMemo(() => categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []), [categoriesRes]);
-  const favorites = useMemo(() => favoritesRes?.data || (Array.isArray(favoritesRes) ? favoritesRes : []), [favoritesRes]);
+  const favorites = useMemo(() => {
+    const data = favoritesRes?.data || (Array.isArray(favoritesRes) ? favoritesRes : []);
+    return Array.isArray(data) ? data : [];
+  }, [favoritesRes]);
 
   const categoryNames = useMemo(() => ['Sve', ...categories.map((c: any) => c.name)], [categories]);
 
@@ -105,22 +112,31 @@ const Search = () => {
       <div className={styles.productGrid}>
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product: any) => {
-            const isFavorite = favorites.some((fav: any) => fav.productId === product.id);
+            const isFavorite = favorites.some((fav: any) => Number(fav.productId) === Number(product.id));
             const img = product.images?.[0];
             const displayImage = img?.startsWith('http') ? img : `http://localhost:3000${img}`;
 
             return (
               <div key={product.id} className={styles.productCard} onClick={() => navigate(`/product/${product.id}`)}>
                 <div className={styles.imageContainer}>
-                  <div className={styles.wishlistIcon} onClick={(e) => { e.stopPropagation(); toggleFavoriteMutation.mutate({ productId: product.id, isFavorite }); }}>
-                    <FiHeart fill={isFavorite ? "black" : "none"} stroke={isFavorite ? "black" : "currentColor"} />
+                  <div 
+                    className={styles.wishlistIcon} 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      toggleFavoriteMutation.mutate({ productId: product.id, isFavorite }); 
+                    }}
+                  >
+                    <FiHeart 
+                      fill={isFavorite ? "black" : "none"} 
+                      stroke={isFavorite ? "black" : "currentColor"} 
+                    />
                   </div>
                   <img src={displayImage} alt={product.name} />
                 </div>
                 <div className={styles.details}>
                   <h4 className={styles.brandName}>{product.name.split(' ')[0]}</h4> 
                   <p className={styles.productName}>{product.name}</p>
-                  <span className={styles.price}>{product.price.toFixed(2)} $</span>
+                  <span className={styles.price}>{Number(product.price).toFixed(2)} $</span>
                 </div>
               </div>
             )

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProductById } from '../../api/products'; 
 import styles from './Product.module.css';
 import { FiX, FiHeart } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useMemo } from 'react'; 
 import axios from 'axios';
 
 const Product = () => {
@@ -29,19 +29,26 @@ const Product = () => {
     queryFn: () => getProductById(Number(id)),
   });
 
-  const { data: favorites = [] } = useQuery({
+  const { data: favoritesRes } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
       const response = await axios.get('http://localhost:3000/api/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return Array.isArray(response.data) ? response.data : (response.data.data || []);
+      return response.data;
     },
     enabled: !!token,
   });
 
-  const isFavorite = favorites.some((fav: any) => fav.productId === Number(id));
+  const favorites = useMemo(() => {
+    const data = favoritesRes?.data || (Array.isArray(favoritesRes) ? favoritesRes : []);
+    return Array.isArray(data) ? data : [];
+  }, [favoritesRes]);
+
+  const isFavorite = useMemo(() => {
+    return favorites.some((fav: any) => Number(fav.productId) === Number(id));
+  }, [favorites, id]);
 
   const favoriteMutation = useMutation({
     mutationFn: async () => {
@@ -56,7 +63,9 @@ const Product = () => {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favorites'] });
+    }
   });
 
   const handleAddToCart = () => {
@@ -87,18 +96,24 @@ const Product = () => {
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <button className={styles.closeBtn} onClick={() => navigate(-1)}><FiX size={24} /></button>
+        
         <div className={styles.imageSection}>
-          <img src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:3000${product.images[0]}`} alt={product.name} />
+          <img 
+            src={product.images[0]?.startsWith('http') ? product.images[0] : `http://localhost:3000${product.images[0]}`} 
+            alt={product.name} 
+          />
         </div>
+
         <div className={styles.content}>
           <div className={styles.header}>
             <h2 className={styles.title}>{product.name.toUpperCase()}</h2>
-            <span className={styles.price}>{product.price.toFixed(2)} $</span>
+            <span className={styles.price}>{Number(product.price).toFixed(2)} $</span>
           </div>
+
           <div className={styles.sizeSection}>
             <p className={styles.sectionLabel}>Izaberi veličinu:</p>
             <div className={styles.sizeGrid}>
-              {product.sizes.map((size: string) => (
+              {product.sizes?.map((size: string) => (
                 <button
                   key={size}
                   className={`${styles.sizeBtn} ${selectedSize === size ? styles.selectedSize : ''}`}
@@ -109,10 +124,19 @@ const Product = () => {
               ))}
             </div>
           </div>
+
           <div className={styles.actions}>
             <button className={styles.addToCartBtn} onClick={handleAddToCart}>DODAJ U KOŠARICU</button>
-            <button className={styles.favBtn} onClick={() => favoriteMutation.mutate()}>
-              <FiHeart size={24} fill={isFavorite ? "black" : "none"} stroke={isFavorite ? "black" : "currentColor"} />
+            <button 
+              className={styles.favBtn} 
+              onClick={() => favoriteMutation.mutate()}
+              disabled={favoriteMutation.isPending}
+            >
+              <FiHeart 
+                size={24} 
+                fill={isFavorite ? "black" : "none"} 
+                stroke={isFavorite ? "black" : "currentColor"} 
+              />
             </button>
           </div>
         </div>

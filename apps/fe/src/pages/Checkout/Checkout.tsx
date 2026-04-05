@@ -7,69 +7,63 @@ import styles from './Checkout.module.css';
 const Checkout = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const token = localStorage.getItem('token');
 
   const { data: userData, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await api.get('/users/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data.data || response.data;
-      } catch (error) {
-        return {
-          name: localStorage.getItem('userName') || 'Korisnik',
-          address: localStorage.getItem('userAddress') || 'Adresa nije unesena',
-          email: localStorage.getItem('userEmail') || 'Nema e-maila',
-          phone: localStorage.getItem('userPhone') || 'Nema telefona'
-        };
-      }
+      if (!token) return null;
+      const response = await api.get('/users/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data.data || response.data;
     }
   });
 
-  const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-  const subTotal = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
+  const cartKey = userData?.id ? `cart_${userData.id}` : 'cart';
+  const cartItems = JSON.parse(localStorage.getItem(cartKey) || '[]');
+  
+  const subTotal = cartItems.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
   const deliveryPrice = 5.00;
   const totalPrice = subTotal + deliveryPrice;
 
-    const orderMutation = useMutation({
-        mutationFn: async () => {
-        const token = localStorage.getItem('token');
-        
-        const orderPayload = {
-        customerName: userData?.name,
-        customerPhone: userData?.phone || 'Nema telefona',
-        shippingAddress: userData?.address || 'Nema adrese',
-        paymentMethod: 'CASH', 
+  const orderMutation = useMutation({
+    mutationFn: async () => {
+      if (!userData) throw new Error('Korisnik nije učitan');
+
+      const orderPayload = {
+        customerName: userData.name,
+        customerPhone: userData.phone || 'Nema telefona',
+        shippingAddress: userData.address || 'Nema adrese',
+        paymentMethod: 'CASH',
         deliveryMethod: 'Pošta',
         subTotal: Number(subTotal),
         deliveryPrice: Number(deliveryPrice),
         totalPrice: Number(totalPrice),
-        isCompleted: false, 
-        status: 'PENDING', 
+        isCompleted: false,
+        status: 'PENDING',
         items: cartItems.map((item: any) => ({
-            productId: Number(item.productId),
-            quantity: Number(item.quantity),
-            price: Number(item.price)
+          productId: Number(item.productId),
+          quantity: Number(item.quantity),
+          price: Number(item.price)
         }))
-        };
+      };
 
-        return await api.post('/orders', orderPayload, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        },
-        onSuccess: () => {
-        alert('Narudžba uspješno poslana!');
-        localStorage.removeItem('cart');
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-        navigate('/');
-        },
-        onError: (error: any) => {
-        console.error("Greška 400 detalji:", error.response?.data);
-        alert(error.response?.data?.message || 'Greška pri slanju narudžbe');
-        }
-    });
+      return await api.post('/orders', orderPayload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    },
+    onSuccess: () => {
+      alert('Narudžba uspješno poslana!');
+      localStorage.removeItem(cartKey);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      navigate('/');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Greška pri slanju narudžbe');
+    }
+  });
+
   if (isLoading) return <div className={styles.loader}>Učitavanje...</div>;
 
   return (
@@ -130,6 +124,15 @@ const Checkout = () => {
           </div>
         </div>
       </section>
+
+      <div className={styles.orderSummary}>
+        {cartItems.map((item: any, idx: number) => (
+          <div key={idx} className={styles.summaryItem}>
+            <span>{item.name} x {item.quantity}</span>
+            <span>{(item.price * item.quantity).toFixed(2)} $</span>
+          </div>
+        ))}
+      </div>
 
       <footer className={styles.footer}>
         <div className={styles.totalRow}>

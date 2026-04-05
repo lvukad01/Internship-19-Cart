@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -16,18 +16,24 @@ const Favorites = () => {
     }
   }, [token, navigate]);
 
-  const { data: favorites = [], isLoading } = useQuery({
+  const { data: favoritesRes, isLoading } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
       const response = await axios.get('http://localhost:3000/api/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const result = response.data;
-      return Array.isArray(result) ? result : (result.data || []);
+      return response.data;
     },
     enabled: !!token,
   });
+
+  const favorites = useMemo(() => {
+    if (!favoritesRes) return [];
+    // Provjera vraća li backend direktno niz ili objekt s .data poljem
+    const data = favoritesRes.data || (Array.isArray(favoritesRes) ? favoritesRes : []);
+    return Array.isArray(data) ? data : [];
+  }, [favoritesRes]);
 
   const removeFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
@@ -56,13 +62,16 @@ const Favorites = () => {
 
       <div className={styles.productGrid}>
         {favorites.length === 0 ? (
-          <p className={styles.emptyMsg}>
-            Nemate spremljenih proizvoda.
-          </p>
+          <p className={styles.emptyMsg}>Nemate spremljenih proizvoda.</p>
         ) : (
           favorites.map((fav: any) => {
             const product = fav.product;
             if (!product) return null;
+
+            const imgUrl = product.images?.[0];
+            const displayImage = imgUrl?.startsWith('http') 
+              ? imgUrl 
+              : `http://localhost:3000${imgUrl}`;
 
             return (
               <div 
@@ -77,20 +86,12 @@ const Favorites = () => {
                   >
                     <FiHeart fill="black" stroke="black" />
                   </div>
-                  <img 
-                    src={product.images?.[0]?.startsWith('http') ? product.images[0] : `http://localhost:3000${product.images[0]}`} 
-                    alt={product.name} 
-                  />
+                  <img src={displayImage} alt={product.name} />
                 </div>
                 <div className={styles.details}>
                   <h4 className={styles.brandName}>{product.name.split(' ')[0]}</h4> 
                   <p className={styles.productName}>{product.name}</p>
-                  <span className={styles.price}>{product.price.toFixed(2)} $</span>
-                  <div className={styles.colors}>
-                    {product.colors?.map((c: string) => (
-                      <span key={c} className={styles.colorDot} style={{ backgroundColor: c.toLowerCase() }}></span>
-                    ))}
-                  </div>
+                  <span className={styles.price}>{Number(product.price).toFixed(2)} $</span>
                 </div>
               </div>
             );

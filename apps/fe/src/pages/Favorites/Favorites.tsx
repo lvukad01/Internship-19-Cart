@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { FiHeart, FiChevronLeft } from 'react-icons/fi';
 import styles from './Favorites.module.css';
+import Header from '../../components/Header/Header';
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -30,7 +31,6 @@ const Favorites = () => {
 
   const favorites = useMemo(() => {
     if (!favoritesRes) return [];
-    // Provjera vraća li backend direktno niz ili objekt s .data poljem
     const data = favoritesRes.data || (Array.isArray(favoritesRes) ? favoritesRes : []);
     return Array.isArray(data) ? data : [];
   }, [favoritesRes]);
@@ -55,10 +55,7 @@ const Favorites = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <FiChevronLeft size={24} onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} />
-        <h1>MOJI FAVORITI</h1>
-      </header>
+      <Header showLogo={true} />
 
       <div className={styles.productGrid}>
         {favorites.length === 0 ? (

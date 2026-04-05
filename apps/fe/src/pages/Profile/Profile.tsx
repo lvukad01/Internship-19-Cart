@@ -3,6 +3,7 @@ import styles from './Profile.module.css';
 
 import userLogo from '../../assets/logo/user.svg';
 import shoppingCartLogo from '../../assets/logo/cart logo.svg';
+import Header from '../../components/Header/Header';
 
 export const Profile = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -106,13 +107,7 @@ export const Profile = () => {
   if (isLoggedIn && userData) {
     return (
       <div className={styles.profileContainer}>
-        <header className={styles.profileHeader}>
-          <div className={styles.headerLeft}>
-            <img src={shoppingCartLogo} alt="Logo" className={styles.logoIcon} />
-            <h1 className={styles.headerTitle}>PROFIL</h1>
-          </div>
-          <div className={styles.notificationIcon}>🔔</div>
-        </header>
+        <Header showLogo={true} />
 
         <div className={styles.infoCard}>
           <div className={styles.infoRow}>

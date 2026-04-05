@@ -2,8 +2,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import axios from 'axios';
-import { FiHeart, FiSearch, FiChevronLeft } from 'react-icons/fi';
+import { FiHeart, FiSearch } from 'react-icons/fi';
 import styles from './Search.module.css';
+import Header from '../../components/Header/Header';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,7 +15,6 @@ const Search = () => {
   const activeCategory = searchParams.get('category') || 'Sve';
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 1. Dohvaćanje proizvoda
   const { data: productsRes } = useQuery({
     queryKey: ['products', 'search'],
     queryFn: async () => {
@@ -23,7 +23,6 @@ const Search = () => {
     },
   });
 
-  // 2. Dohvaćanje kategorija
   const { data: categoriesRes } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -32,7 +31,6 @@ const Search = () => {
     },
   });
 
-  // 3. Dohvaćanje favorita
   const { data: favoritesRes } = useQuery({
     queryKey: ['favorites'],
     queryFn: async () => {
@@ -45,7 +43,6 @@ const Search = () => {
     enabled: !!token,
   });
 
-  // Sigurno izvlačenje podataka iz API odgovora
   const products = useMemo(() => productsRes?.data || (Array.isArray(productsRes) ? productsRes : []), [productsRes]);
   const categories = useMemo(() => categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []), [categoriesRes]);
   const favorites = useMemo(() => {
@@ -73,40 +70,49 @@ const Search = () => {
 
   const filteredProducts = useMemo(() => {
     return products.filter((p: any) => {
-      const pCatName = p.category?.name || p.category;
+      const searchLower = searchTerm.toLowerCase().trim();
+      const pName = String(p.name).toLowerCase();
+      const pCatName = String(p.category?.name || p.category).toLowerCase();
+      const pDescription = String(p.description || '').toLowerCase();
+      
       const categoryMatch = activeCategory === 'Sve' || 
-        String(pCatName).toLowerCase().trim() === String(activeCategory).toLowerCase().trim();
-      const searchMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        pCatName.trim() === String(activeCategory).toLowerCase().trim();
+
+      const searchMatch = pName.includes(searchLower) || 
+                          pCatName.includes(searchLower) || 
+                          pDescription.includes(searchLower);
+
       return categoryMatch && searchMatch;
     });
   }, [products, activeCategory, searchTerm]);
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <FiChevronLeft size={24} onClick={() => navigate(-1)} style={{ cursor: 'pointer' }} />
-        <div className={styles.searchBar}>
-          <FiSearch className={styles.searchIcon} />
-          <input 
-            type="text" 
-            placeholder="Pretraži proizvode..." 
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <Header showLogo={true} />
+      <div className={styles.stickyTop}>
+        <div className={styles.searchBarContainer}>
+          <div className={styles.searchBar}>
+            <FiSearch className={styles.searchIcon} />
+            <input 
+              type="text" 
+              placeholder="Pretraži proizvode, kategorije..." 
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
-      </header>
-
-      <div className={styles.tabs}>
-        {categoryNames.map((cat) => (
-          <button
-            key={cat}
-            className={activeCategory === cat ? styles.activeTab : styles.tab}
-            onClick={() => setSearchParams({ category: cat })}
-          >
-            {cat}
-          </button>
-        ))}
+        <div className={styles.tabs}>
+          {categoryNames.map((cat) => (
+            <button
+              key={cat}
+              className={activeCategory === cat ? styles.activeTab : styles.tab}
+              onClick={() => setSearchParams({ category: cat })}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className={styles.productGrid}>

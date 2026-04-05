@@ -9,13 +9,12 @@ const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [imageUrlInput, setImageUrlInput] = useState('');
   
   const [formData, setFormData] = useState({ 
     name: '', 
     price: '', 
     stock: '', 
-    brand: '',
-    description: '', 
     categoryId: '', 
     colors: '', 
     sizes: '', 
@@ -24,28 +23,34 @@ const AdminProducts = () => {
 
   const token = localStorage.getItem('token');
 
-  const { data: products, isLoading: productsLoading } = useQuery({
+  const { data: productsRes, isLoading: productsLoading } = useQuery({
     queryKey: ['admin-products'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/products');
-      return Array.isArray(res.data) ? res.data : res.data.data || [];
+      const res = await axios.get('http://localhost:3000/api/products?limit=1000');
+      return res.data;
     }
   });
 
-  const { data: categories } = useQuery({
+  const { data: categoriesRes } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: async () => {
       const res = await axios.get('http://localhost:3000/api/categories');
-      return Array.isArray(res.data) ? res.data : res.data.data || [];
+      return res.data;
     }
   });
 
+  const products = useMemo(() => productsRes?.data || (Array.isArray(productsRes) ? productsRes : []), [productsRes]);
+  const categories = useMemo(() => categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []), [categoriesRes]);
+
   const filteredProducts = useMemo(() => {
-    const list = Array.isArray(products) ? products : [];
-    return list.filter((p: any) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            p.brand?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = filterCategory === '' || p.categoryId === Number(filterCategory);
+    return products.filter((p: any) => {
+      const searchLower = searchTerm.toLowerCase().trim();
+      const pName = String(p.name).toLowerCase();
+      const pCatId = String(p.categoryId);
+      
+      const matchesSearch = pName.includes(searchLower);
+      const matchesCategory = filterCategory === '' || pCatId === filterCategory;
+      
       return matchesSearch && matchesCategory;
     });
   }, [products, searchTerm, filterCategory]);
@@ -74,19 +79,23 @@ const AdminProducts = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-products'] })
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    const uploadData = new FormData();
-    for (let i = 0; i < files.length; i++) uploadData.append('files', files[i]);
-
+  const isValidUrl = (urlString: string) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/upload', uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
-      });
-      setFormData(prev => ({ ...prev, images: [...prev.images, ...res.data.urls] }));
-    } catch (err) {
-      alert("Greška pri uploadu slika");
+      return Boolean(new URL(urlString));
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const addImageUrl = () => {
+    const trimmedUrl = imageUrlInput.trim();
+    if (!trimmedUrl) return;
+
+    if (isValidUrl(trimmedUrl)) {
+      setFormData(prev => ({ ...prev, images: [...prev.images, trimmedUrl] }));
+      setImageUrlInput('');
+    } else {
+      alert('Molimo unesite ispravan URL format (npr. https://example.com/slika.jpg)');
     }
   };
 
@@ -104,23 +113,27 @@ const AdminProducts = () => {
         name: product.name,
         price: product.price.toString(),
         stock: product.stock.toString(),
-        brand: product.brand || '',
-        description: product.description || '',
         categoryId: product.categoryId?.toString() || '',
         colors: Array.isArray(product.colors) ? product.colors.join(', ') : '',
         sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : '',
-        images: product.images || []
+        images: Array.isArray(product.images) ? product.images : []
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: '', price: '', stock: '', brand: '', description: '', categoryId: '', colors: '', sizes: '', images: [] });
+      setFormData({ name: '', price: '', stock: '', categoryId: '', colors: '', sizes: '', images: [] });
     }
+    setImageUrlInput('');
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
+  };
+
+  const getImageUrl = (url: string) => {
+    if (!url) return '/placeholder.png';
+    return url.startsWith('http') ? url : `http://localhost:3000${url}`;
   };
 
   if (productsLoading) return <div className={styles.loader}>Učitavanje podataka...</div>;
@@ -135,7 +148,7 @@ const AdminProducts = () => {
       <div className={styles.toolbar}>
         <input 
           type="text" 
-          placeholder="Pretraži po nazivu ili brendu..." 
+          placeholder="Pretraži po nazivu..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={styles.searchInput}
@@ -146,7 +159,7 @@ const AdminProducts = () => {
           className={styles.filterSelect}
         >
           <option value="">Sve kategorije</option>
-          {Array.isArray(categories) && categories.map((c: any) => (
+          {categories.map((c: any) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
@@ -168,13 +181,12 @@ const AdminProducts = () => {
               <tr key={p.id}>
                 <td>#{p.id}</td>
                 <td className={styles.productCell}>
-                  <img src={p.images?.[0] ? `http://localhost:3000${p.images[0]}` : '/placeholder.png'} className={styles.adminThumb} alt="" />
+                  <img src={getImageUrl(p.images?.[0])} className={styles.adminThumb} alt="" />
                   <div>
                     <div className={styles.prodName}>{p.name}</div>
-                    <div className={styles.prodBrand}>{p.brand}</div>
                   </div>
                 </td>
-                <td>{p.price.toFixed(2)} €</td>
+                <td>{Number(p.price).toFixed(2)} €</td>
                 <td>
                   <span className={p.stock > 0 ? styles.inStock : styles.lowStock}>
                     {p.stock > 0 ? `${p.stock} na zalihi` : 'Nema na zalihi'}
@@ -214,10 +226,6 @@ const AdminProducts = () => {
                   <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Brend</label>
-                  <input type="text" value={formData.brand} onChange={e => setFormData({...formData, brand: e.target.value})} required />
-                </div>
-                <div className={styles.formGroup}>
                   <label>Cijena (€)</label>
                   <input type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
                 </div>
@@ -229,7 +237,7 @@ const AdminProducts = () => {
                   <label>Kategorija</label>
                   <select value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})} required>
                     <option value="">Odaberi kategoriju</option>
-                    {Array.isArray(categories) && categories.map((c: any) => (
+                    {categories.map((c: any) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
@@ -238,28 +246,28 @@ const AdminProducts = () => {
                   <label>Veličine (odvojeno zarezom)</label>
                   <input type="text" placeholder="npr. S, M, L, XL" value={formData.sizes} onChange={e => setFormData({...formData, sizes: e.target.value})} />
                 </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Boje (odvojeno zarezom)</label>
-                <input type="text" placeholder="npr. Crna, Bijela, Crvena" value={formData.colors} onChange={e => setFormData({...formData, colors: e.target.value})} />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Opis proizvoda</label>
-                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} />
+                <div className={styles.formGroup}>
+                  <label>Boje (odvojeno zarezom)</label>
+                  <input type="text" placeholder="npr. Crna, Bijela" value={formData.colors} onChange={e => setFormData({...formData, colors: e.target.value})} />
+                </div>
               </div>
 
               <div className={styles.uploadSection}>
-                <label>Slike proizvoda</label>
-                <div className={styles.uploadTrigger}>
-                  <input type="file" multiple onChange={handleImageUpload} id="file-upload" className={styles.fileInput} />
-                  <label htmlFor="file-upload" className={styles.fileLabel}>Odaberi slike</label>
+                <label>Slike proizvoda (URL)</label>
+                <div className={styles.urlInputGroup} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input 
+                    type="url" 
+                    placeholder="Unesite URL slike (https://...)" 
+                    value={imageUrlInput} 
+                    onChange={e => setImageUrlInput(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button type="button" onClick={addImageUrl} className={styles.addBtn}>Dodaj</button>
                 </div>
                 <div className={styles.previewGrid}>
                   {formData.images.map((img, idx) => (
                     <div key={idx} className={styles.previewItem}>
-                      <img src={`http://localhost:3000${img}`} alt="" />
+                      <img src={getImageUrl(img)} alt="" />
                       <button type="button" onClick={() => removeImage(idx)} className={styles.removeImgBtn}>&times;</button>
                     </div>
                   ))}

@@ -21,12 +21,13 @@
   background: #F3F4F6; 
   border: none; 
   border-radius: 20px;
+  margin-bottom: 25px;
 }
 
 .searchIcon { 
     position: absolute; 
     left: 15px; 
-    top: 50%; 
+    top: 30%; 
     transform: translateY(-50%); 
     color: #9CA3AF; 
 }

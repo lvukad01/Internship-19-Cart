@@ -5,6 +5,7 @@ import { FiBell, FiSearch } from 'react-icons/fi';
 import cartLogo from '../../assets/logo/cart logo.svg';
 import brandLogo from '../../assets/logo/brand name.svg';
 import styles from './Home.module.css';
+import Header from '../../components/Header/Header';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const Home = () => {
       return response.data;
     },
   });
-
+  
   const products = productsRes?.data || [];
   const categories = categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []);
 
@@ -39,14 +40,7 @@ const Home = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <img src={cartLogo} className={styles.logo} alt="Cart" />
-        <img src={brandLogo} className={styles.brand} alt="Brand" />
-        <div className={styles.notification}>
-          <FiBell size={24} />
-          <span className={styles.badge}></span>
-        </div>
-      </header>
+    <Header showLogo={true} />
 
       <div className={styles.searchContainer} onClick={() => navigate('/search')}>
         <FiSearch className={styles.searchIcon} />

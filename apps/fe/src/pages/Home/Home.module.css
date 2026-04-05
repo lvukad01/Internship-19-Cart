@@ -4,14 +4,7 @@
   background: white;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
 
-.logo { height: 30px; }
 
 .notification { position: relative; }
 .badge {

@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100; 
+  background-color: white; 
+  padding: 15px 0;
+  margin-bottom: 10px; 
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo { height: 28px; }
+.brand { height: 35px; }
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.icon { cursor: pointer; }
+
+.notification { position: relative; cursor: pointer; }
+.badge {
+  position: absolute;
+  top: 0; right: 0;
+  width: 8px; height: 8px;
+  background: #D18D67;
+  border-radius: 50%;
+  border: 2px solid white;
+}

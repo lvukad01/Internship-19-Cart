@@ -65,7 +65,7 @@ const Cart = () => {
     <div className={styles.container}>
       <header className={styles.header}>
         <button onClick={() => navigate(-1)} className={styles.backBtn}><FiChevronLeft size={24} /></button>
-        <h1>MOJA KOŠARICA</h1>
+        <h1>KOŠARICA</h1>
         <div style={{ width: 24 }}></div>
       </header>
 
@@ -98,7 +98,7 @@ const Cart = () => {
 
       {cartItems.length > 0 && (
         <footer className={styles.footer}>
-          <div className={styles.summaryRow}><span>Podtotal:</span><span>{subTotal.toFixed(2)} $</span></div>
+          <div className={styles.summaryRow}><span>Subtotal:</span><span>{subTotal.toFixed(2)} $</span></div>
           <div className={styles.summaryRow}><span>Dostava:</span><span>{delivery.toFixed(2)} $</span></div>
           <div className={`${styles.summaryRow} ${styles.total}`}><span>UKUPNO:</span><span>{total.toFixed(2)} $</span></div>
           <button className={styles.checkoutBtn} onClick={() => navigate('/checkout')}>NA BLAGAJNU</button>

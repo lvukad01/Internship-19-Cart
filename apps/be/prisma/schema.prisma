@@ -30,32 +30,36 @@ enum OrderStatus {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  password  String
-  name      String?
-  phone     String?
-  address   String?
-  role      Role       @default(USER)
-  favorites Favorite[]
-  orders    Order[]
-  cartItems CartItem[]
+  id              Int        @id @default(autoincrement())
+  email           String     @unique
+  password        String
+  name            String?
+  phone           String?
+  address         String?
+  county          String?
+  iban            String?
+  expiryDate      String?
+  cvv             String?
+  role            Role       @default(USER)
+  favorites       Favorite[]
+  orders          Order[]
+  cartItems       CartItem[]
 }
 
 model Product {
-  id         Int         @id @default(autoincrement())
-  name       String
-  price      Float
-  images     String[]
-  colors     String[]
-  stock      Int
-  sizes      String[]
-  category   Category    @relation(fields: [categoryId], references: [id])
-  categoryId Int
-  createdAt  DateTime    @default(now())
-  favorites  Favorite[]
-  orderItems OrderItem[]
-  cartItems  CartItem[]
+  id          Int         @id @default(autoincrement())
+  name        String
+  price       Float
+  images      String[]
+  colors      String[]
+  stock       Int
+  sizes       String[]
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  createdAt   DateTime    @default(now())
+  favorites   Favorite[]
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
 }
 
 model Category {

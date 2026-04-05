@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -25,14 +24,17 @@ export class AuthService {
         const hashedPassword = await bcrypt.hash(data.password, 10);
 
         const user = await this.prisma.user.create({
-            data: {
-                email: data.email,
-                password: hashedPassword,
-                role: Role.USER,
-                name: data.name,
-                phone: data.phone,
-                address: data.address,
-            },
+        data: {
+            email: data.email,
+            name: data.name,
+            password: hashedPassword,
+            phone: data.phone,
+            address: data.address,
+            county: data.county,
+            iban: data.iban,
+            expiryDate: data.expiryDate,
+            cvv: data.cvv,
+        },
         });
 
         const { password, ...userWithoutPassword } = user;

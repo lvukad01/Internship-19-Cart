@@ -9,21 +9,25 @@ async function main() {
   await prisma.favorite.deleteMany({});
   await prisma.cartItem.deleteMany({});
   await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({}); 
   await prisma.product.deleteMany({});
   await prisma.category.deleteMany({});
+  await prisma.user.deleteMany({});
 
-  await prisma.user.upsert({
-    where: { email: 'lana@admin.com' },
-    update: {},
-    create: {
-      email: 'lana@admin.com',
-      name: 'Lana Vukadin',
-      password: password,
-      role: Role.ADMIN,
-      address: 'Marmontova 1, Split',
-      phone: '091123456',
-    },
-  });
+  await prisma.user.create({
+      data: {
+        email: 'lana@admin.com',
+        name: 'Lana Vukadin',
+        password: password,
+        role: Role.ADMIN,
+        address: 'Marmontova 1, Split',
+        county: 'Splitsko-dalmatinska',
+        iban: 'HR1234567890123456789',
+        expiryDate: '12/28',
+        cvv: '123',
+        phone: '091123456',
+      },
+    });
 
   const clothesPool = ['S', 'M', 'L', 'XL'];
   const shoesPool = ['44', '45', '46', '47'];
@@ -127,7 +131,7 @@ async function main() {
     });
   }
 
-  console.log('✅ Seed successful: Products and Categories synced!');
+  console.log('✅ Seed successful');
 }
 
 main()

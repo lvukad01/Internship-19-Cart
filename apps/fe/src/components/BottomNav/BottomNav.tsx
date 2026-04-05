@@ -1,5 +1,3 @@
-//TO DO: Remove inline css and move it to the CSS module file
-
 import { Link, useLocation } from 'react-router-dom';
 import homeLogo from '../../assets/logo/home.svg';
 import searchLogo from '../../assets/logo/search.svg';

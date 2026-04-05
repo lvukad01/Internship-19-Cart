@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -16,7 +16,7 @@ export class RegisterDto {
   @IsNotEmpty()
   @MaxLength(30, { message: 'Name should have less than 30 characters' })
   @MinLength(2, { message: 'Name should have at least 2 characters' })
-  @Matches(/^[a-zA-Z\s'-]+$/, {
+  @Matches(/^[a-zA-Z\s'čćžšđČĆŽŠĐ-]+$/, {
     message: 'Invalid characters in name',
   })
   name: string;
@@ -32,4 +32,29 @@ export class RegisterDto {
   @IsString()
   @MaxLength(100)
   address?: string;
+
+  @ApiProperty({ example: 'Splitsko-dalmatinska', required: true })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(50)
+  county: string;
+
+  @ApiProperty({ example: 'HR1234567890123456789', required: true })
+  @IsNotEmpty()
+  @IsString()
+  @Matches(/^[A-Z]{2}[0-9]{19}$/, { message: 'Invalid IBAN format' })
+  iban: string;
+
+  @ApiProperty({ example: '12/28', required: true })
+  @IsNotEmpty()
+  @IsString()
+  @Matches(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, { message: 'Invalid expiry date format (MM/YY)' })
+  expiryDate: string;
+
+  @ApiProperty({ example: '123', required: true })
+  @IsNotEmpty()
+  @IsString()
+  @Length(3, 3, { message: 'CVV must be exactly 3 digits' })
+  @Matches(/^[0-9]{3}$/, { message: 'CVV must contain only numbers' })
+  cvv: string;
 }

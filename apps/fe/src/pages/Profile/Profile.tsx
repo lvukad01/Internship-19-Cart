@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Profile.module.css';
-
 import userLogo from '../../assets/logo/user.svg';
-import shoppingCartLogo from '../../assets/logo/cart logo.svg';
 import Header from '../../components/Header/Header';
 
 export const Profile = () => {
@@ -18,6 +16,18 @@ export const Profile = () => {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [county, setCounty] = useState('');
+  const [iban, setIban] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+
+  const maskIban = (iban: string) => {
+    if (!iban) return 'Nije uneseno';
+    if (iban.length < 8) return '****';
+    const firstTwo = iban.substring(0, 2);
+    const lastFour = iban.substring(iban.length - 4);
+    const middle = '*'.repeat(iban.length - 6);
+    return `${firstTwo}${middle}${lastFour}`;
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,7 +68,7 @@ export const Profile = () => {
     const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
     
     const payload = isRegistering 
-      ? { email, password, name, address, phone } 
+      ? { email, password, name, address, phone, county, iban, expiryDate, cvv } 
       : { email, password };
 
     try {
@@ -108,7 +118,6 @@ export const Profile = () => {
     return (
       <div className={styles.profileContainer}>
         <Header showLogo={true} />
-
         <div className={styles.infoCard}>
           <div className={styles.infoRow}>
             <div className={styles.iconCircle}>
@@ -128,13 +137,12 @@ export const Profile = () => {
                <span className={styles.visaText}>VISA</span>
             </div>
             <div className={styles.textContainer}>
-              <p><strong>IBAN:</strong> {userData.iban || 'HR****************'}</p>
-              <p><strong>DATUM ISTEKA:</strong> 12/28</p>
+              <p><strong>IBAN:</strong> {maskIban(userData.iban)}</p>
+              <p><strong>DATUM ISTEKA:</strong> {userData.expiryDate || 'Nije uneseno'}</p>
               <p><strong>CVV KOD:</strong> ***</p>
             </div>
           </div>
         </div>
-
         <button onClick={handleLogout} className={styles.logoutBtn}>ODJAVA</button>
       </div>
     );
@@ -180,6 +188,20 @@ export const Profile = () => {
               <div className={styles.inputGroup}>
                 <label>Županija</label>
                 <input type="text" value={county} onChange={(e) => setCounty(e.target.value)} required />
+              </div>
+              <div className={styles.inputGroup}>
+                <label>IBAN</label>
+                <input type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="HR00..." required />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div className={styles.inputGroup} style={{ flex: 2 }}>
+                  <label>Datum isteka</label>
+                  <input type="text" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} placeholder="MM/YY" required />
+                </div>
+                <div className={styles.inputGroup} style={{ flex: 1 }}>
+                  <label>CVV</label>
+                  <input type="text" value={cvv} onChange={(e) => setCvv(e.target.value)} placeholder="123" maxLength={3} required />
+                </div>
               </div>
             </>
           )}

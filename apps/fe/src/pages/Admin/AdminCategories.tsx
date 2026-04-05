@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './AdminSections.module.css';
 
 const AdminCategories = () => {
@@ -9,13 +9,18 @@ const AdminCategories = () => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const token = localStorage.getItem('token');
 
-  const { data: categories, isLoading } = useQuery({
+  const { data: categoriesRes, isLoading } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: async () => {
       const res = await axios.get('http://localhost:3000/api/categories');
-      return Array.isArray(res.data) ? res.data : res.data.data || [];
+      return res.data;
     }
   });
+
+  const categories = useMemo(() => {
+    const data = categoriesRes?.data || (Array.isArray(categoriesRes) ? categoriesRes : []);
+    return Array.isArray(data) ? data : [];
+  }, [categoriesRes]);
 
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -52,7 +57,6 @@ Brisanjem kategorije obrisat ćete i SVE povezane proizvode!
       });
     },
     onSuccess: () => {
-      // Osvježavamo i kategorije i proizvode jer su proizvodi možda obrisani kaskadno
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
     },
@@ -68,7 +72,7 @@ Brisanjem kategorije obrisat ćete i SVE povezane proizvode!
       <div className={styles.header}>
         <div>
           <h3>Upravljanje Kategorijama</h3>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Ukupno: {categories?.length || 0}</p>
+          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Ukupno: {categories.length}</p>
         </div>
         <button className={styles.addBtn} onClick={() => setIsModalOpen(true)}>+ Nova Kategorija</button>
       </div>
@@ -84,7 +88,7 @@ Brisanjem kategorije obrisat ćete i SVE povezane proizvode!
             </tr>
           </thead>
           <tbody>
-            {categories?.map((c: any) => {
+            {categories.map((c: any) => {
               const count = c._count?.products ?? c.products?.length ?? 0;
               return (
                 <tr key={c.id}>

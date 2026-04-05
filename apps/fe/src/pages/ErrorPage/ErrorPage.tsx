@@ -10,10 +10,7 @@ const ErrorPage = () => {
       <div className={styles.content}>
         
         <h1 className={styles.title}>DOGODILA SE GREŠKA</h1>
-        <p className={styles.description}>
-          Nažalost, nismo uspjeli obraditi vašu narudžbu. 
-          Moguće je da podaci na vašem profilu nisu potpuni.
-        </p>
+
 
         <div className={styles.buttonGroup}>
           <button 

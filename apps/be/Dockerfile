@@ -2,14 +2,18 @@ FROM node:20
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY apps/be/package*.json ./
 RUN npm install
 
-COPY . .
+COPY apps/be ./
+
+COPY apps/be/prisma ./prisma
+
 
 RUN npx prisma generate
+
 RUN npm run build
 
-EXPOSE 3000
+COPY apps/fe/dist ./public
 
 CMD ["node", "dist/src/main.js"]

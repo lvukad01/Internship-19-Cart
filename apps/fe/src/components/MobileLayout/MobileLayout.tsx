@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import {BottomNav} from '../BottomNav';
+import {BottomNav} from '../BottomNav/BottomNav';
 import styles from './MobileLayout.module.css';
 
 const MobileLayout = () => {

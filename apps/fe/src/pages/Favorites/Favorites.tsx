@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { FiHeart, FiChevronLeft } from 'react-icons/fi';
+import { FiHeart } from 'react-icons/fi';
 import styles from './Favorites.module.css';
 import Header from '../../components/Header/Header';
 

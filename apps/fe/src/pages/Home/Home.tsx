@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FiBell, FiSearch } from 'react-icons/fi';
-import cartLogo from '../../assets/logo/cart logo.svg';
-import brandLogo from '../../assets/logo/brand name.svg';
+import {  FiSearch } from 'react-icons/fi';
 import styles from './Home.module.css';
 import Header from '../../components/Header/Header';
 

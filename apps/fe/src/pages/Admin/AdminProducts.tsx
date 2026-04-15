@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { useState, useMemo } from 'react';
 import styles from './AdminSections.module.css';
 
@@ -26,7 +26,7 @@ const AdminProducts = () => {
   const { data: productsRes, isLoading: productsLoading } = useQuery({
     queryKey: ['admin-products'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/products?limit=1000');
+      const res = await api.get('/products?limit=1000');
       return res.data;
     }
   });
@@ -34,7 +34,7 @@ const AdminProducts = () => {
   const { data: categoriesRes } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/categories');
+      const res = await api.get('/categories');
       return res.data;
     }
   });
@@ -59,9 +59,9 @@ const AdminProducts = () => {
     mutationFn: async (data: any) => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       if (editingProduct) {
-        return await axios.patch(`http://localhost:3000/api/products/${editingProduct.id}`, data, config);
+        return await api.patch(`/products/${editingProduct.id}`, data, config);
       }
-      return await axios.post('http://localhost:3000/api/products', data, config);
+      return await api.post('/products', data, config);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
@@ -72,7 +72,7 @@ const AdminProducts = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       if (!window.confirm('Jeste li sigurni da želite trajno obrisati ovaj proizvod?')) return;
-      await axios.delete(`http://localhost:3000/api/products/${id}`, {
+      await api.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -133,7 +133,7 @@ const AdminProducts = () => {
 
   const getImageUrl = (url: string) => {
     if (!url) return '/placeholder.png';
-    return url.startsWith('http') ? url : `http://localhost:3000${url}`;
+    return url.startsWith('http') ? url : `http://51.20.85.113:3000${url}`;
   };
 
   if (productsLoading) return <div className={styles.loader}>Učitavanje podataka...</div>;

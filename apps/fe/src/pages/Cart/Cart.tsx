@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { FiChevronLeft, FiTrash2, FiMinus, FiPlus } from 'react-icons/fi';
 import styles from './Cart.module.css';
 
@@ -13,7 +13,7 @@ const Cart = () => {
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['user-me'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/users/me', {
+      const res = await api.get('/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return res.data;
@@ -75,7 +75,7 @@ const Cart = () => {
         ) : (
           cartItems.map((item) => (
             <div key={item.cartId} className={styles.cartCard}>
-              <img src={item.image.startsWith('http') ? item.image : `http://localhost:3000${item.image}`} className={styles.productImg} />
+              <img src={item.image.startsWith('http') ? item.image : `http://51.20.85.113:3000${item.image}`} className={styles.productImg} />
               <div className={styles.details}>
                 <div className={styles.row}>
                   <h3>{item.name.toUpperCase()}</h3>

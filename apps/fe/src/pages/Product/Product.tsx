@@ -4,7 +4,7 @@ import { getProductById } from '../../api/products';
 import styles from './Product.module.css';
 import { FiX, FiHeart } from 'react-icons/fi';
 import { useState, useMemo } from 'react'; 
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 
 const Product = () => {
   const { id } = useParams();
@@ -16,7 +16,7 @@ const Product = () => {
   const { data: user } = useQuery({
     queryKey: ['user-me'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/users/me', {
+      const res = await api.get('/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return res.data;
@@ -33,7 +33,7 @@ const Product = () => {
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
-      const response = await axios.get('http://localhost:3000/api/favorites', {
+      const response = await api.get('/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -54,11 +54,11 @@ const Product = () => {
     mutationFn: async () => {
       if (!token) return navigate('/profile');
       if (isFavorite) {
-        await axios.delete(`http://localhost:3000/api/favorites/product/${id}`, {
+        await api.delete(`/favorites/product/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post(`http://localhost:3000/api/favorites/${id}`, {}, {
+        await api.post(`/favorites/${id}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -99,7 +99,7 @@ const Product = () => {
         
         <div className={styles.imageSection}>
           <img 
-            src={product.images[0]?.startsWith('http') ? product.images[0] : `http://localhost:3000${product.images[0]}`} 
+            src={product.images[0]?.startsWith('http') ? product.images[0] : `http://51.20.85.113:3000${product.images[0]}`} 
             alt={product.name} 
           />
         </div>

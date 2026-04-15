@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { useState, useMemo } from 'react';
 import styles from './AdminSections.module.css';
 
@@ -12,7 +12,7 @@ const AdminCategories = () => {
   const { data: categoriesRes, isLoading } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/categories');
+      const res = await api.get('/categories');
       return res.data;
     }
   });
@@ -24,7 +24,7 @@ const AdminCategories = () => {
 
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      return await axios.post('http://localhost:3000/api/categories', { name }, {
+      return await api.post('/categories', { name }, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -52,7 +52,7 @@ Brisanjem kategorije obrisat ćete i SVE povezane proizvode!
 
       if (!window.confirm(confirmMsg)) return;
       
-      await axios.delete(`http://localhost:3000/api/categories/${category.id}`, {
+      await api.delete(`/categories/${category.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },

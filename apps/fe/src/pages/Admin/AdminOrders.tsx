@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { useState, useMemo } from 'react';
 import styles from './AdminSections.module.css';
 
@@ -12,7 +12,7 @@ const AdminOrders = () => {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:3000/api/orders', {
+      const res = await api.get('/orders', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return Array.isArray(res.data) ? res.data : res.data.data || [];
@@ -27,7 +27,7 @@ const AdminOrders = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      return await axios.patch(`http://localhost:3000/api/orders/${id}/status`, { status }, {
+      return await api.patch(`/orders/${id}/status`, { status }, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },

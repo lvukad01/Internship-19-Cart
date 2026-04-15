@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { FiHeart, FiSearch } from 'react-icons/fi';
 import styles from './Search.module.css';
 import Header from '../../components/Header/Header';
@@ -18,7 +18,7 @@ const Search = () => {
   const { data: productsRes } = useQuery({
     queryKey: ['products', 'search'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3000/api/products?limit=100');
+      const response = await api.get('/products?limit=100');
       return response.data;
     },
   });
@@ -26,7 +26,7 @@ const Search = () => {
   const { data: categoriesRes } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3000/api/categories');
+      const response = await api.get('/categories');
       return response.data;
     },
   });
@@ -35,7 +35,7 @@ const Search = () => {
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
-      const response = await axios.get('http://localhost:3000/api/favorites', {
+      const response = await api.get('/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -56,11 +56,11 @@ const Search = () => {
     mutationFn: async ({ productId, isFavorite }: { productId: number, isFavorite: boolean }) => {
       if (!token) return navigate('/profile');
       if (isFavorite) {
-        await axios.delete(`http://localhost:3000/api/favorites/product/${productId}`, {
+        await api.delete(`/favorites/product/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post(`http://localhost:3000/api/favorites/${productId}`, {}, {
+        await api.post(`/favorites/${productId}`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -120,7 +120,7 @@ const Search = () => {
           filteredProducts.map((product: any) => {
             const isFavorite = favorites.some((fav: any) => Number(fav.productId) === Number(product.id));
             const img = product.images?.[0];
-            const displayImage = img?.startsWith('http') ? img : `http://localhost:3000${img}`;
+            const displayImage = img?.startsWith('http') ? img : `http://51.20.85.113:3000${img}`;
 
             return (
               <div key={product.id} className={styles.productCard} onClick={() => navigate(`/product/${product.id}`)}>

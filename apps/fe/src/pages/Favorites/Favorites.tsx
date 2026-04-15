@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { FiHeart } from 'react-icons/fi';
 import styles from './Favorites.module.css';
 import Header from '../../components/Header/Header';
+import api from '../../api/axiosInstance';
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Favorites = () => {
     queryKey: ['favorites'],
     queryFn: async () => {
       if (!token) return [];
-      const response = await axios.get('http://localhost:3000/api/favorites', {
+      const response = await api.get('/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -37,7 +37,7 @@ const Favorites = () => {
 
   const removeFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
-      await axios.delete(`http://localhost:3000/api/favorites/product/${productId}`, {
+      await api.delete(`/favorites/product/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -68,7 +68,7 @@ const Favorites = () => {
             const imgUrl = product.images?.[0];
             const displayImage = imgUrl?.startsWith('http') 
               ? imgUrl 
-              : `http://localhost:3000${imgUrl}`;
+              : `http://51.20.85.113:3000${imgUrl}`;
 
             return (
               <div 

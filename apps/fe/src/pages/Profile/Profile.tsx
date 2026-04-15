@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Profile.module.css';
 import userLogo from '../../assets/logo/user.svg';
 import Header from '../../components/Header/Header';
+import api from '../../api/axiosInstance';
 
 export const Profile = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -35,17 +36,15 @@ export const Profile = () => {
       if (!token) return;
 
       try {
-        const response = await fetch('http://localhost:3000/api/users/me', {
-          method: 'GET',
+        const response = await api.get('/users/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          const user = result.data || result;
+        if (response.status === 200) {
+          const user = response.data;
           setUserData(user);
           setIsLoggedIn(true);
           localStorage.setItem('user', JSON.stringify(user));
@@ -72,7 +71,7 @@ export const Profile = () => {
       : { email, password };
 
     try {
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const response = await fetch(`http://51.20.85.113:3000${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

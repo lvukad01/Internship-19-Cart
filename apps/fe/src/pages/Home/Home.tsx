@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {  FiSearch } from 'react-icons/fi';
 import styles from './Home.module.css';
 import Header from '../../components/Header/Header';
+import api from '../../api/axiosInstance';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const Home = () => {
   const { data: productsRes } = useQuery({
     queryKey: ['products', 'home'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3000/api/products?limit=100');
+      const response = await api.get('/products?limit=100');
       return response.data;
     },
   });
@@ -19,7 +19,7 @@ const Home = () => {
   const { data: categoriesRes } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:3000/api/categories');
+      const response = await api.get('/categories');
       return response.data;
     },
   });
@@ -53,7 +53,7 @@ const Home = () => {
           );
 
           const displayImage = sampleProduct?.images?.[0]
-            ? (sampleProduct.images[0].startsWith('http') ? sampleProduct.images[0] : `http://localhost:3000${sampleProduct.images[0]}`)
+            ? (sampleProduct.images[0].startsWith('http') ? sampleProduct.images[0] : `http://51.20.85.113:3000${sampleProduct.images[0]}`)
             : 'https://placehold.co/400x600?text=' + category.name;
 
           return (

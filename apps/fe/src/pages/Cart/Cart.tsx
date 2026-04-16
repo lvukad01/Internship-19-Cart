@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../api/axiosInstance';
 import { FiChevronLeft, FiTrash2, FiMinus, FiPlus } from 'react-icons/fi';
 import styles from './Cart.module.css';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -75,7 +76,12 @@ const Cart = () => {
         ) : (
           cartItems.map((item) => (
             <div key={item.cartId} className={styles.cartCard}>
-              <img src={item.image.startsWith('http') ? item.image : `http://51.20.85.113:3000${item.image}`} className={styles.productImg} />
+            <img 
+              src={item.image.startsWith('http') 
+                ? item.image 
+                : `${API_URL}${item.image}`} 
+              className={styles.productImg} 
+            />
               <div className={styles.details}>
                 <div className={styles.row}>
                   <h3>{item.name.toUpperCase()}</h3>

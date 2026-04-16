@@ -4,6 +4,7 @@ import {  FiSearch } from 'react-icons/fi';
 import styles from './Home.module.css';
 import Header from '../../components/Header/Header';
 import api from '../../api/axiosInstance';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Home = () => {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const Home = () => {
           );
 
           const displayImage = sampleProduct?.images?.[0]
-            ? (sampleProduct.images[0].startsWith('http') ? sampleProduct.images[0] : `http://51.20.85.113:3000${sampleProduct.images[0]}`)
+            ? (sampleProduct.images[0].startsWith('http') ? sampleProduct.images[0] : `${API_URL}${sampleProduct.images[0]}`)
             : 'https://placehold.co/400x600?text=' + category.name;
 
           return (

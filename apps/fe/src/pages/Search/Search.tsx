@@ -5,6 +5,7 @@ import api from '../../api/axiosInstance';
 import { FiHeart, FiSearch } from 'react-icons/fi';
 import styles from './Search.module.css';
 import Header from '../../components/Header/Header';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,7 +121,7 @@ const Search = () => {
           filteredProducts.map((product: any) => {
             const isFavorite = favorites.some((fav: any) => Number(fav.productId) === Number(product.id));
             const img = product.images?.[0];
-            const displayImage = img?.startsWith('http') ? img : `http://51.20.85.113:3000${img}`;
+            const displayImage = img?.startsWith('http') ? img : `${API_URL}${img}`;
 
             return (
               <div key={product.id} className={styles.productCard} onClick={() => navigate(`/product/${product.id}`)}>

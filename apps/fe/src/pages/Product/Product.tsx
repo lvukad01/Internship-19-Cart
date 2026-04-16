@@ -5,6 +5,7 @@ import styles from './Product.module.css';
 import { FiX, FiHeart } from 'react-icons/fi';
 import { useState, useMemo } from 'react'; 
 import api from '../../api/axiosInstance';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Product = () => {
   const { id } = useParams();
@@ -99,7 +100,7 @@ const Product = () => {
         
         <div className={styles.imageSection}>
           <img 
-            src={product.images[0]?.startsWith('http') ? product.images[0] : `http://51.20.85.113:3000${product.images[0]}`} 
+            src={product.images[0]?.startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`} 
             alt={product.name} 
           />
         </div>

@@ -3,6 +3,7 @@ import styles from './Profile.module.css';
 import userLogo from '../../assets/logo/user.svg';
 import Header from '../../components/Header/Header';
 import api from '../../api/axiosInstance';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const Profile = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -30,34 +31,33 @@ export const Profile = () => {
     return `${firstTwo}${middle}${lastFour}`;
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+useEffect(() => {
+  const fetchUserData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-      try {
-        const response = await api.get('/users/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+    try {
+      const response = await api.get('/users/me');
 
-        if (response.status === 200) {
-          const user = response.data;
-          setUserData(user);
-          setIsLoggedIn(true);
-          localStorage.setItem('user', JSON.stringify(user));
-        } else {
-          handleLogout();
-        }
-      } catch (err) {
-        console.error("Greška pri dohvaćanju profila:", err);
-      }
-    };
+      const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
 
-    fetchUserData();
-  }, []);
+      const mergedUser = {
+        ...existingUser,
+        ...response.data
+      };
+
+      setUserData(mergedUser);
+      setIsLoggedIn(true);
+      localStorage.setItem('user', JSON.stringify(mergedUser));
+
+    } catch (err) {
+      console.error("Greška pri dohvaćanju profila:", err);
+      handleLogout();
+    }
+  };
+
+  fetchUserData();
+}, []);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ export const Profile = () => {
       : { email, password };
 
     try {
-      const response = await fetch(`http://51.20.85.113:3000${endpoint}`, {
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

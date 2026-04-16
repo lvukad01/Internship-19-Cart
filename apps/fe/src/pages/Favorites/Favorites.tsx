@@ -5,6 +5,7 @@ import { FiHeart } from 'react-icons/fi';
 import styles from './Favorites.module.css';
 import Header from '../../components/Header/Header';
 import api from '../../api/axiosInstance';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -68,8 +69,7 @@ const Favorites = () => {
             const imgUrl = product.images?.[0];
             const displayImage = imgUrl?.startsWith('http') 
               ? imgUrl 
-              : `http://51.20.85.113:3000${imgUrl}`;
-
+              : `${API_URL}${imgUrl}`;
             return (
               <div 
                 key={product.id} 

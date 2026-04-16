@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axiosInstance';
 import { useState, useMemo } from 'react';
 import styles from './AdminSections.module.css';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminProducts = () => {
   const queryClient = useQueryClient();
@@ -133,8 +134,9 @@ const AdminProducts = () => {
 
   const getImageUrl = (url: string) => {
     if (!url) return '/placeholder.png';
-    return url.startsWith('http') ? url : `http://51.20.85.113:3000${url}`;
-  };
+    return url.startsWith('http') 
+      ? url 
+      : `${API_URL}${url}`;  };
 
   if (productsLoading) return <div className={styles.loader}>Učitavanje podataka...</div>;
 

@@ -64,7 +64,7 @@ useEffect(() => {
     setError('');
     setSuccessMessage('');
 
-    const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+    const endpoint = isRegistering ? '/auth/register' : '/auth/login';
     
     const payload = isRegistering 
       ? { email, password, name, address, phone, county, iban, expiryDate, cvv } 

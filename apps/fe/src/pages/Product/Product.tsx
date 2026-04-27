@@ -6,6 +6,11 @@ import { FiX, FiHeart } from 'react-icons/fi';
 import { useState, useMemo } from 'react'; 
 import api from '../../api/axiosInstance';
 const API_URL = import.meta.env.VITE_API_URL;
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
 
 const Product = () => {
   const { id } = useParams();
@@ -69,27 +74,39 @@ const Product = () => {
     }
   });
 
-  const handleAddToCart = () => {
-    if (!product) return;
-    if (!selectedSize) return alert('Molimo odaberite veličinu!');
-    if (!user) return alert('Morate biti ulogirani!');
+const handleAddToCart = () => {
+  if (!product) return;
+  if (!selectedSize) return alert('Molimo odaberite veličinu!');
+  if (!user) return alert('Morate biti ulogirani!');
 
-    const cartKey = `cart_${user.id}`;
-    const existingCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
-    
-    const newCartItem = {
-      cartId: Date.now(), 
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0],
-      size: selectedSize,
-      quantity: 1
-    };
-
-    localStorage.setItem(cartKey, JSON.stringify([...existingCart, newCartItem]));
-    alert('Proizvod dodan u košaricu!');
+  const cartKey = `cart_${user.id}`;
+  const existingCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+  
+  const newCartItem = {
+    cartId: Date.now(), 
+    productId: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.images[0],
+    size: selectedSize,
+    quantity: 1
   };
+
+  localStorage.setItem(cartKey, JSON.stringify([...existingCart, newCartItem]));
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "AddToCart",
+    productName: product.name,
+    price: product.price,
+    category: product.category?.name || "unknown",
+    productId: product.id,
+    size: selectedSize,
+    pageUrl: window.location.href
+  });
+
+  alert('Proizvod dodan u košaricu!');
+};
 
   if (isLoading || !product) return null;
 
